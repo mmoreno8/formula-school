@@ -22,7 +22,7 @@ https://claude.ai/code/artifact/3374507e-758a-47d7-a19e-cb0763e68bad
 | Product name | "Formula School" is the working name and stays |
 | Working arrangement | Claude works directly in the directory. No branches or worktrees needed |
 | Unbuilt nav pages | Hidden until the features exist. See section 7 |
-| Hosting | Vercel. Free `.vercel.app` URL to start, custom domain later |
+| Hosting | Cloudflare Pages. Codex connects the GitHub repo after review |
 | Domain | Deferred. Not `jobtap.nz` |
 
 ### Ownership model (changed in draft 3)
@@ -84,9 +84,11 @@ No user accounts. No database. No payments. No AI tutor. No Microsoft API. No sp
 No ribbon, no menus, no cell formatting, no multi-sheet workbooks. No downloadable workbooks.
 No streaks, no badges, no confetti. No lesson gating: all ten are open from the first visit.
 
-**No server-side anything.** No route handlers, no server actions, no middleware, no databases.
-This is the rule that keeps the app portable. Keep it and switching to a pure static export is a
-two-line change. Break it once and the app is tied to its host.
+**No server-side anything.** No route handlers, no API routes, no server actions, no middleware,
+no databases, no runtime server dependencies. The app is a pure static export and must stay one.
+`next.config.ts` sets `output: "export"`, every lesson route is generated at build time through
+`generateStaticParams`, and `npm run build` writes a self-contained `out/` directory. Break any of
+this and the build stops producing something Cloudflare Pages can host.
 
 ---
 
@@ -212,9 +214,14 @@ it answers the "do I need an account" question before it gets asked.
 
 ### Deployment shape
 
-Vercel, deployed by Codex. Every route is statically generated at build time. The ten lesson
-routes use `generateStaticParams`. Combined with the no-server-side rule in section 4, the whole
-app is static-export-compatible, so it can move to any host without a rewrite.
+**Cloudflare Pages**, connected and deployed by Codex after review. Claude does not deploy.
+
+Every route is statically generated at build time; the ten lesson routes use
+`generateStaticParams` with `dynamicParams = false`. `npm run build` produces `out/`, which is the
+entire site. Cloudflare Pages settings: build command `npm run build`, output directory `out`, no
+environment variables, no functions.
+
+Because the output is plain static files, the app can move to any host without a rewrite.
 
 ---
 
@@ -450,7 +457,7 @@ Claude does not report completion until all of these are true:
 
 - All ten lessons load, each with exactly three real exercises. No placeholders anywhere
 - All thirty exercises plus the ten Build targets pass the validator, including negative cases
-- Type checking, linting and the production build all pass with no errors
+- Type checking, linting and the production build all pass with no errors, and the build writes `out/`
 - Progress survives a page refresh
 - Light and dark both read correctly on every page
 - Every page works at phone width

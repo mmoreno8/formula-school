@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens. BRIEF.md section 9.
+   This is the only file in the codebase allowed to contain a hex colour.
+   Light lives on the bare :root so the un-stamped (system) state resolves.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --page: #f7f7f4;
+  --card: #ffffff;
+  --raise: #fbfbf9;
+  --ink: #1a1d1b;
+  --ink-2: #5b605c;
+  --ink-3: #8e938f;
+  --line: #e9e9e4;
+  --line-2: #f1f1ec;
+  --green: #0f6e56;
+  --green-2: #0b5442;
+  --mint: #e6f3ee;
+  --mint-2: #c9e7db;
+  --track: #edede8;
+
+  --lookup-bg: #eeedfe;
+  --lookup-fg: #3b349b;
+  --search-bg: #fbeedb;
+  --search-fg: #7a4a0c;
+  --return-bg: #e6f3ee;
+  --return-fg: #0b5442;
+  --test-bg: #fbeaf0;
+  --test-fg: #8c2f55;
+  --plain-bg: #f1f1ec;
+  --plain-fg: #5b605c;
+
+  --hint-bg: #fbeedb;
+  --hint-fg: #6b4109;
+  --reveal-bg: #fcecec;
+  --reveal-fg: #8c2e2e;
+
+  --on-green: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #121412;
+    --card: #1a1d1a;
+    --raise: #1f231f;
+    --ink: #eceeeb;
+    --ink-2: #a4aaa5;
+    --ink-3: #767c77;
+    --line: #2a2e2a;
+    --line-2: #232723;
+    --green: #5fc9a4;
+    --green-2: #8fdcc0;
+    --mint: #16332a;
+    --mint-2: #1f4a3c;
+    --track: #282c28;
+
+    --lookup-bg: #26244f;
+    --lookup-fg: #bdb8f2;
+    --search-bg: #3a2b10;
+    --search-fg: #e8c286;
+    --return-bg: #16332a;
+    --return-fg: #8fdcc0;
+    --test-bg: #3a1f2b;
+    --test-fg: #f0afc8;
+    --plain-bg: #232723;
+    --plain-fg: #a4aaa5;
+
+    --hint-bg: #3a2b10;
+    --hint-fg: #e8c286;
+    --reveal-bg: #3a2020;
+    --reveal-fg: #f0a6a6;
+
+    --on-green: #0c2b22;
+  }
+}
+
+:root[data-theme="dark"] {
+  --page: #121412;
+  --card: #1a1d1a;
+  --raise: #1f231f;
+  --ink: #eceeeb;
+  --ink-2: #a4aaa5;
+  --ink-3: #767c77;
+  --line: #2a2e2a;
+  --line-2: #232723;
+  --green: #5fc9a4;
+  --green-2: #8fdcc0;
+  --mint: #16332a;
+  --mint-2: #1f4a3c;
+  --track: #282c28;
+
+  --lookup-bg: #26244f;
+  --lookup-fg: #bdb8f2;
+  --search-bg: #3a2b10;
+  --search-fg: #e8c286;
+  --return-bg: #16332a;
+  --return-fg: #8fdcc0;
+  --test-bg: #3a1f2b;
+  --test-fg: #f0afc8;
+  --plain-bg: #232723;
+  --plain-fg: #a4aaa5;
+
+  --hint-bg: #3a2b10;
+  --hint-fg: #e8c286;
+  --reveal-bg: #3a2020;
+  --reveal-fg: #f0a6a6;
+
+  --on-green: #0c2b22;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-card: var(--card);
+  --color-raise: var(--raise);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-green: var(--green);
+  --color-green-2: var(--green-2);
+  --color-mint: var(--mint);
+  --color-mint-2: var(--mint-2);
+  --color-track: var(--track);
+  --color-on-green: var(--on-green);
+  --color-hint-bg: var(--hint-bg);
+  --color-hint-fg: var(--hint-fg);
+  --color-reveal-bg: var(--reveal-bg);
+  --color-reveal-fg: var(--reveal-fg);
+
+  --font-sans: var(--font-public-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
+/* --------------------------------------------------------------------------- */
+
+html {
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* The only box-shadow in the codebase. BRIEF.md section 9. */
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Argument chip tints, driven by a data attribute so components never
+   pick a colour themselves. */
+[data-tint="lookup"] { background: var(--lookup-bg); color: var(--lookup-fg); }
+[data-tint="search"] { background: var(--search-bg); color: var(--search-fg); }
+[data-tint="return"] { background: var(--return-bg); color: var(--return-fg); }
+[data-tint="test"]   { background: var(--test-bg);   color: var(--test-fg); }
+[data-tint="plain"]  { background: var(--plain-bg);  color: var(--plain-fg); }
