@@ -89,3 +89,19 @@ export const SIGNATURES: Record<string, Signature> = {
 export function signatureFor(fn: string): Signature | undefined {
   return SIGNATURES[fn.toUpperCase()];
 }
+
+/**
+ * Screen-reader wording for the shape of a function, used when the caret is
+ * not inside any argument. Optional arguments are named as optional, because
+ * "XLOOKUP takes 4 arguments" reads as four things you have to supply and only
+ * three of them are.
+ */
+export function describeArgumentCount(signature: Signature): string {
+  const required = signature.args.filter((a) => !a.optional).length;
+  const optional = signature.args.length - required;
+  const plural = (n: number) => (n === 1 ? "argument" : "arguments");
+
+  if (optional === 0) return `${required} ${plural(required)}`;
+  if (required === 0) return `${optional} optional ${plural(optional)}`;
+  return `${required} required ${plural(required)} and ${optional} optional ${plural(optional)}`;
+}

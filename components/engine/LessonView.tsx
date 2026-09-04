@@ -37,6 +37,15 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
   const onBuilt = useCallback(() => markBuilt(lesson.id), [lesson.id]);
 
   const next = useMemo(() => nextLesson(lesson.id), [lesson.id]);
+  const exerciseIds = useMemo(
+    () => lesson.exercises.map((e) => e.id),
+    [lesson.exercises],
+  );
+  /** No-op until every exercise is done. The guard itself lives in progress.ts. */
+  const finish = useCallback(
+    () => markFinished(lesson.id, exerciseIds),
+    [lesson.id, exerciseIds],
+  );
 
   function renderExercise(exercise: Exercise, index: number) {
     const solved = state.done.includes(exercise.id);
@@ -169,15 +178,27 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
         {step === 3 && (
           <section className="rounded-xl border border-line bg-card p-6 sm:p-8">
             <div className="mx-auto max-w-[46ch] text-center">
-              <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-mint">
-                <IconCheck className="h-6 w-6 text-green" />
+              <span
+                className={`mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full ${
+                  allDone ? "bg-mint" : "bg-line-2"
+                }`}
+              >
+                {allDone ? (
+                  <IconCheck className="h-6 w-6 text-green" />
+                ) : (
+                  <span aria-hidden="true" className="text-lg font-semibold text-ink-3">
+                    {doneCount}/{lesson.exercises.length}
+                  </span>
+                )}
               </span>
-              <h2 className="text-xl font-semibold">Lesson complete</h2>
+              <h2 className="text-xl font-semibold">
+                {allDone ? "Lesson complete" : "Not finished yet"}
+              </h2>
               <p className="mt-2 text-[15px] text-ink-2">
                 {doneCount} of {lesson.exercises.length} exercises done.{" "}
                 {allDone
                   ? "That is the whole set."
-                  : "You can come back for the rest whenever."}
+                  : "A lesson counts as finished once all three are done. You can come back for the rest whenever."}
               </p>
             </div>
 
@@ -198,25 +219,31 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
             <div className="mt-7 flex flex-wrap gap-2">
               {next ? (
                 <Link href={`/formulas/${next.id}`}>
-                  <Button variant="primary" onClick={() => markFinished(lesson.id)}>
+                  <Button variant="primary" onClick={finish}>
                     Next: {next.name}
                   </Button>
                 </Link>
               ) : (
                 <Link href="/formulas">
-                  <Button variant="primary" onClick={() => markFinished(lesson.id)}>
+                  <Button variant="primary" onClick={finish}>
                     Back to all formulas
                   </Button>
                 </Link>
               )}
-              <Button
-                onClick={() => {
-                  markFinished(lesson.id);
-                  setStep(0);
-                }}
-              >
-                Mark as finished
-              </Button>
+              {allDone ? (
+                <Button
+                  onClick={() => {
+                    finish();
+                    setStep(0);
+                  }}
+                >
+                  Mark as finished
+                </Button>
+              ) : (
+                <Button onClick={() => setStep(2)}>
+                  Finish the exercises
+                </Button>
+              )}
               <Button
                 variant="quiet"
                 onClick={() => {

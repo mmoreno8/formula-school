@@ -1,7 +1,7 @@
 "use client";
 
 import { activeArgument } from "@/lib/formulaHint";
-import { signatureFor } from "@/lib/signatures";
+import { describeArgumentCount, signatureFor } from "@/lib/signatures";
 
 interface Props {
   /** The whole field value, including the leading "=". */
@@ -32,13 +32,14 @@ export function ArgHint({ value, caret, fallbackFn }: Props) {
   }
 
   const activeIndex = active ? active.index : -1;
+  const shape = describeArgumentCount(signature);
 
   return (
     <p className="mt-2 min-h-[19px] overflow-x-auto font-mono text-[12.5px] whitespace-nowrap text-ink-3">
       <span className="sr-only">
         {activeIndex >= 0 && signature.args[activeIndex]
           ? `Argument ${activeIndex + 1}, ${signature.args[activeIndex].name}: ${signature.args[activeIndex].label}.`
-          : `${signature.fn} takes ${signature.args.length} arguments.`}
+          : `${signature.fn} takes ${shape}.`}
       </span>
       <span aria-hidden="true">
         {signature.fn}(

@@ -178,14 +178,24 @@ Two additions to that ladder:
 
 Progress lives in `localStorage`. Nothing else is persisted. There is no account and no database.
 
-Two things are stored per lesson, and only these two:
+Three things are stored per lesson, and only these three:
 
 - which exercises have been completed
 - whether the lesson has been finished
+- whether the Build step has been solved
+
+The third was added during review. It carries no score, it is what lets the lesson rail show a
+solved Build step when the learner comes back to the page, and without it the rail would forget
+work the learner had already done. Everything the original two bullets forbade still stands.
+
+**Finished has one meaning.** A lesson is finished when all three of its exercises are
+completed, and at no other time. The rail lets the learner jump straight to the Done step, so
+this is enforced in `markFinished` rather than in the view: reaching the last screen is not
+completing the lesson, and the Done screen says so when exercises are outstanding.
 
 The formula card shows **exercises completed out of three**, as `2 / 3`, and a completion state.
 There is no percentage, no accuracy figure, no attempts counter, no hints-used tally and no
-quality score of any kind on the card. If it is not in the two bullets above, the card does not
+quality score of any kind on the card. If it is not in the three bullets above, the card does not
 claim it.
 
 ---

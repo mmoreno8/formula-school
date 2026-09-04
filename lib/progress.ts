@@ -3,9 +3,10 @@
 /**
  * Progress lives in localStorage and nowhere else. BRIEF.md section 6.
  *
- * Two things are stored per lesson and only these two: which exercises are
- * done, and whether the lesson is finished. No accuracy, no attempts, no
- * hints-used tally, no score. If it is not here, the UI does not claim it.
+ * Three things are stored per lesson and only these three: which exercises are
+ * done, whether the lesson is finished, and whether the Build step has been
+ * solved. No accuracy, no attempts, no hints-used tally, no score. If it is not
+ * here, the UI does not claim it.
  */
 
 const KEY = "formula-school.progress.v1";
@@ -13,7 +14,7 @@ const KEY = "formula-school.progress.v1";
 export interface LessonProgress {
   /** Exercise ids that have been completed. */
   done: string[];
-  /** True once the learner has reached the end of the lesson. */
+  /** True once every exercise in the lesson is done. See markFinished. */
   finished: boolean;
   /** True once the Build step has been solved. */
   built: boolean;
@@ -126,10 +127,16 @@ export function markBuilt(lessonId: string): void {
   write(map);
 }
 
-export function markFinished(lessonId: string): void {
+/**
+ * Finished means the three exercises are done, not that the learner reached
+ * the last screen. The rail lets you jump anywhere, so the guard lives here
+ * rather than in the view: no caller can mark a lesson finished early.
+ */
+export function markFinished(lessonId: string, requiredExerciseIds: string[]): void {
   const map = readProgress();
   const current = lessonProgress(map, lessonId);
   if (current.finished) return;
+  if (!requiredExerciseIds.every((id) => current.done.includes(id))) return;
   map[lessonId] = { ...current, finished: true };
   write(map);
 }
