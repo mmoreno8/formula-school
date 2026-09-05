@@ -1,114 +1,171 @@
 "use client";
 
 import Link from "next/link";
-import { LESSONS, TOTAL_EXERCISES } from "@/content";
-import { lessonProgress } from "@/lib/progress";
+import {
+  EXCEL_LESSONS,
+  SQL_LESSONS,
+  TRACK_TARGET,
+  exerciseCount,
+} from "@/content";
+import type { Lesson } from "@/lib/schema";
+import { lessonHref } from "@/lib/schema";
+import { lessonProgress, type ProgressMap } from "@/lib/progress";
 import { useProgress } from "@/lib/useProgress";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
-import { FormulaCard } from "@/components/layout/FormulaCard";
+import { LessonCard } from "@/components/layout/LessonCard";
 
-export function Overview() {
-  const progress = useProgress();
-
-  const finished = LESSONS.filter((l) => lessonProgress(progress, l.id).finished);
-  const exercisesDone = LESSONS.reduce((n, l) => {
+function stats(lessons: Lesson[], progress: ProgressMap) {
+  const finished = lessons.filter((l) => lessonProgress(progress, l.id).finished);
+  const exercisesDone = lessons.reduce((n, l) => {
     const state = lessonProgress(progress, l.id);
     return n + l.exercises.filter((e) => state.done.includes(e.id)).length;
   }, 0);
+  const upNext = lessons.find((l) => !lessonProgress(progress, l.id).finished);
+  return { finished: finished.length, exercisesDone, upNext };
+}
 
-  const upNext = LESSONS.find(
-    (l) => !lessonProgress(progress, l.id).finished,
-  );
+/** One panel per track, so neither is the afterthought. BRIEF.md section 7. */
+function TrackPanel({
+  title,
+  href,
+  lessons,
+  target,
+  progress,
+  blurb,
+}: {
+  title: string;
+  href: string;
+  lessons: Lesson[];
+  target: number;
+  progress: ProgressMap;
+  blurb: string;
+}) {
+  const { finished, exercisesDone, upNext } = stats(lessons, progress);
+  const total = lessons.reduce((n, l) => n + l.exercises.length, 0);
   const started = exercisesDone > 0;
+
+  return (
+    <section className="rounded-xl border border-line bg-card p-5 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[11.5px] tracking-wider text-ink-3 uppercase">
+            {title}
+          </p>
+          {upNext ? (
+            <>
+              <p className="mt-1.5 font-mono text-xl font-medium tracking-tight">
+                {upNext.name}
+              </p>
+              <p className="mt-1 max-w-[52ch] text-[14.5px] text-ink-2">
+                {upNext.blurb}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-1.5 text-xl font-medium tracking-tight">
+                You have been through all of it
+              </p>
+              <p className="mt-1 max-w-[52ch] text-[14.5px] text-ink-2">{blurb}</p>
+            </>
+          )}
+        </div>
+        {upNext ? (
+          <Link href={lessonHref(upNext)}>
+            <Button variant="primary">
+              {started ? "Carry on" : "Start the first lesson"}
+            </Button>
+          </Link>
+        ) : (
+          <Link href={href}>
+            <Button>Back to the list</Button>
+          </Link>
+        )}
+      </div>
+
+      <div className="mt-5 grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
+        <div>
+          <p className="mb-2 text-[12.5px] text-ink-2 tabular-nums">
+            {finished} of {target} lessons finished
+          </p>
+          <ProgressBar value={finished} max={target} label={`${title} lessons finished`} />
+        </div>
+        <div>
+          <p className="mb-2 text-[12.5px] text-ink-2 tabular-nums">
+            {exercisesDone} of {total} exercises done
+          </p>
+          <ProgressBar
+            value={exercisesDone}
+            max={Math.max(total, 1)}
+            label={`${title} exercises completed`}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function Overview() {
+  const progress = useProgress();
+  const sqlBuilt = SQL_LESSONS.length;
 
   return (
     <>
       <PageHeader
         crumbs={[{ label: "Home" }]}
         title="Overview"
-        description={`${LESSONS.length} Excel lessons that turn up in real analyst work, taught one at a time. Your progress stays on this device.`}
+        description={`Two tracks: ${TRACK_TARGET.excel} Excel lessons and ${TRACK_TARGET.sql} SQL lessons, all of it the kind of work that turns up in a real analyst job. Your progress stays on this device.`}
       />
 
-      <section className="rounded-xl border border-line bg-card p-5 sm:p-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          {upNext ? (
-            <>
-              <div>
-                <p className="text-[11.5px] tracking-wider text-ink-3 uppercase">
-                  {started ? "Up next" : "Start here"}
-                </p>
-                <p className="mt-1.5 font-mono text-xl font-medium tracking-tight">
-                  {upNext.name}
-                </p>
-                <p className="mt-1 max-w-[52ch] text-[14.5px] text-ink-2">
-                  {upNext.blurb}
-                </p>
-              </div>
-              <Link href={`/formulas/${upNext.id}`}>
-                <Button variant="primary">
-                  {started ? "Carry on" : "Start the first lesson"}
-                </Button>
-              </Link>
-            </>
-          ) : (
-            <>
-              <div>
-                <p className="text-[11.5px] tracking-wider text-ink-3 uppercase">
-                  All {LESSONS.length} finished
-                </p>
-                <p className="mt-1.5 text-xl font-medium tracking-tight">
-                  You have been through the whole course
-                </p>
-                <p className="mt-1 max-w-[52ch] text-[14.5px] text-ink-2">
-                  The cheat sheet has every signature on one page when you need
-                  a reminder, and any lesson can be redone from scratch.
-                </p>
-              </div>
-              <Link href="/cheat-sheet">
-                <Button variant="primary">Open the cheat sheet</Button>
-              </Link>
-            </>
-          )}
-        </div>
-
-        <div className="mt-6 grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
-          <div>
-            <p className="mb-2 text-[12.5px] text-ink-2 tabular-nums">
-              {finished.length} of {LESSONS.length} lessons finished
-            </p>
-            <ProgressBar
-              value={finished.length}
-              max={LESSONS.length}
-              label="Lessons finished"
-            />
-          </div>
-          <div>
-            <p className="mb-2 text-[12.5px] text-ink-2 tabular-nums">
-              {exercisesDone} of {TOTAL_EXERCISES} exercises done
-            </p>
-            <ProgressBar
-              value={exercisesDone}
-              max={TOTAL_EXERCISES}
-              label="Exercises completed"
-            />
-          </div>
-        </div>
-      </section>
+      <div className="flex flex-col gap-3.5">
+        <TrackPanel
+          title="Excel"
+          href="/formulas"
+          lessons={EXCEL_LESSONS}
+          target={TRACK_TARGET.excel}
+          progress={progress}
+          blurb="The cheat sheet has every signature on one page when you need a reminder, and any lesson can be redone from scratch."
+        />
+        <TrackPanel
+          title="SQL"
+          href="/sql"
+          lessons={SQL_LESSONS}
+          target={TRACK_TARGET.sql}
+          progress={progress}
+          blurb="More SQL lessons are on the way. The ones here are finished rather than previews."
+        />
+      </div>
 
       <h2 className="mt-9 mb-3.5 text-[12px] font-medium tracking-wider text-ink-3 uppercase">
-        All formulas
+        All Excel lessons
       </h2>
       <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
-        {LESSONS.map((lesson) => (
-          <FormulaCard
-            key={lesson.id}
-            lesson={lesson}
-            progress={progress}
-          />
+        {EXCEL_LESSONS.map((lesson) => (
+          <LessonCard key={lesson.id} lesson={lesson} progress={progress} />
         ))}
       </div>
+
+      <h2 className="mt-9 mb-3.5 text-[12px] font-medium tracking-wider text-ink-3 uppercase">
+        SQL lessons
+      </h2>
+      {sqlBuilt < TRACK_TARGET.sql && (
+        <p className="mb-3.5 text-[13.5px] text-ink-3">
+          {sqlBuilt} of {TRACK_TARGET.sql} built so far.
+        </p>
+      )}
+      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
+        {SQL_LESSONS.map((lesson) => (
+          <LessonCard key={lesson.id} lesson={lesson} progress={progress} />
+        ))}
+      </div>
+
+      <p className="mt-8 max-w-[66ch] text-[13.5px] leading-relaxed text-ink-3">
+        Everything here runs in your browser, including the SQL. Nothing is sent
+        anywhere, and there is no account.
+      </p>
     </>
   );
 }
+
+export { exerciseCount };

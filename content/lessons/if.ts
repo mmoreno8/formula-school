@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -44,7 +44,8 @@ const sheet: Sheet = {
   },
 };
 
-export const ifLesson: Lesson = {
+export const ifLesson: ExcelLesson = {
+  track: "excel",
   id: "if",
   name: "IF",
   blurb: "Do one thing when true, another when false",

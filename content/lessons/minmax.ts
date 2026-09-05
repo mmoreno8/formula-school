@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -17,7 +17,8 @@ const sheet: Sheet = {
   },
 };
 
-export const minmax: Lesson = {
+export const minmax: ExcelLesson = {
+  track: "excel",
   id: "min-max",
   name: "MIN and MAX",
   blurb: "Find the smallest and largest numbers in a range",

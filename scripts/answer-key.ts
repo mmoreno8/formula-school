@@ -1,8 +1,8 @@
 /** Dumps the correct answer for every exercise, so an end-to-end walk of the
  *  running app can drive each one. Not part of the app; a testing aid. */
-import { LESSONS } from "@/content";
+import { EXCEL_LESSONS } from "@/content";
 
-const key = LESSONS.map((l) => ({
+const key = EXCEL_LESSONS.map((l) => ({
   id: l.id,
   name: l.name,
   build: l.build.canonical,

@@ -1,8 +1,8 @@
 "use client";
 
-import { LESSONS } from "@/content";
+import { EXCEL_LESSONS } from "@/content";
 import { useProgress } from "@/lib/useProgress";
-import { FormulaCard } from "@/components/layout/FormulaCard";
+import { LessonCard } from "@/components/layout/LessonCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export function FormulasIndex() {
@@ -13,11 +13,11 @@ export function FormulasIndex() {
       <PageHeader
         crumbs={[{ label: "Home", href: "/" }, { label: "Formulas" }]}
         title="Formulas"
-        description={`${LESSONS.length} practical Excel lessons, three exercises each. Start anywhere. Nothing is locked, and you keep what you finish.`}
+        description={`${EXCEL_LESSONS.length} practical Excel lessons, three exercises each. Start anywhere. Nothing is locked, and you keep what you finish.`}
       />
       <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
-        {LESSONS.map((lesson) => (
-          <FormulaCard
+        {EXCEL_LESSONS.map((lesson) => (
+          <LessonCard
             key={lesson.id}
             lesson={lesson}
             progress={progress}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { Lesson } from "@/lib/schema";
+import { lessonHref } from "@/lib/schema";
 import type { ProgressMap } from "@/lib/progress";
 import { lessonProgress } from "@/lib/progress";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -10,13 +11,18 @@ import { IconCheck } from "@/components/ui/icons";
 interface Props {
   lesson: Lesson;
   progress: ProgressMap;
+  /** Shown on the combined overview, where both tracks appear together. */
+  showTrack?: boolean;
 }
 
 /**
  * The card claims two things and only two: exercises completed, and whether
  * the lesson is finished. No percentage, no accuracy, no score. BRIEF.md 6.
+ *
+ * Track-aware since draft 5: the href comes from the lesson's own track, so
+ * one card serves both grids.
  */
-export function FormulaCard({ lesson, progress }: Props) {
+export function LessonCard({ lesson, progress, showTrack }: Props) {
   const state = lessonProgress(progress, lesson.id);
   const total = lesson.exercises.length;
   const done = lesson.exercises.filter((e) => state.done.includes(e.id)).length;
@@ -30,16 +36,19 @@ export function FormulaCard({ lesson, progress }: Props) {
 
   return (
     <Link
-      href={`/formulas/${lesson.id}`}
+      href={lessonHref(lesson)}
       className="flex flex-col gap-3 rounded-xl border border-line bg-card p-4 transition-colors hover:border-mint-2"
     >
       <div className="flex items-center gap-2">
         <span className="font-mono text-[15px] font-medium tracking-tight">
           {lesson.name}
         </span>
-        {finished && (
-          <IconCheck className="ml-auto h-4 w-4 shrink-0 text-green" />
+        {showTrack && (
+          <span className="rounded-md border border-line px-1.5 py-0.5 text-[10.5px] tracking-wide text-ink-3 uppercase">
+            {lesson.track === "sql" ? "SQL" : "Excel"}
+          </span>
         )}
+        {finished && <IconCheck className="ml-auto h-4 w-4 shrink-0 text-green" />}
       </div>
       <p className="text-[13.5px] leading-snug text-ink-3">{lesson.blurb}</p>
       <ProgressBar

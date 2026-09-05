@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LESSONS } from "@/content";
+import { EXCEL_LESSONS } from "@/content";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SignatureChips } from "@/components/engine/SignatureChips";
 
@@ -20,7 +20,7 @@ export default function CheatSheetPage() {
       />
 
       <div className="flex flex-col gap-3.5">
-        {LESSONS.map((lesson) => (
+        {EXCEL_LESSONS.map((lesson) => (
           <section
             key={lesson.id}
             className="rounded-xl border border-line bg-card p-5"

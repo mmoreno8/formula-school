@@ -11,18 +11,22 @@
     "test:watch": "vitest",
     "validate": "tsx scripts/validate-content.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run lint && npm run validate && npm run test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run validate && npm run test && npm run build",
+    "sql:assets": "node scripts/sync-sql-assets.mjs",
+    "postinstall": "node scripts/sync-sql-assets.mjs"
   },
   "dependencies": {
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "sql.js": "^1.14.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.13.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sql.js": "^1.4.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",

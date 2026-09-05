@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -53,7 +53,8 @@ const sheet: Sheet = {
   },
 };
 
-export const sum: Lesson = {
+export const sum: ExcelLesson = {
+  track: "excel",
   id: "sum",
   name: "SUM",
   blurb: "Add up a column of numbers",

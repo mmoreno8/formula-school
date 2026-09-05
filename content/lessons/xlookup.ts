@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 /** Duplicate customers and a repeated region, so a lookup that matches the
@@ -51,7 +51,8 @@ const sheet: Sheet = {
   },
 };
 
-export const xlookup: Lesson = {
+export const xlookup: ExcelLesson = {
+  track: "excel",
   id: "xlookup",
   name: "XLOOKUP",
   blurb: "Find a row by one value, bring back another",

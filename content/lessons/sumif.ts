@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -44,7 +44,8 @@ const sheet: Sheet = {
   },
 };
 
-export const sumif: Lesson = {
+export const sumif: ExcelLesson = {
+  track: "excel",
   id: "sumif",
   name: "SUMIF",
   blurb: "Add up only the rows that meet a condition",

@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -15,7 +15,8 @@ const sheet: Sheet = {
   },
 };
 
-export const textParts: Lesson = {
+export const textParts: ExcelLesson = {
+  track: "excel",
   id: "text-parts",
   name: "LEFT, RIGHT and MID",
   blurb: "Extract a useful part from a text code",

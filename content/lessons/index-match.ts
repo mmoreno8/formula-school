@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -16,7 +16,8 @@ const sheet: Sheet = {
   },
 };
 
-export const indexMatch: Lesson = {
+export const indexMatch: ExcelLesson = {
+  track: "excel",
   id: "index-match",
   name: "INDEX and MATCH",
   blurb: "Find a position, then return the value at that position",

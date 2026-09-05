@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The sql.js runtime, copied verbatim from node_modules by
+    // scripts/sync-sql-assets.mjs. Third-party build output, not ours to lint.
+    // public/sql/worker.js is ours and is deliberately not ignored.
+    "public/sql/sql-wasm.js",
   ]),
 ]);
 

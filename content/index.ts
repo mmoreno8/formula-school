@@ -1,4 +1,14 @@
-import type { Lesson } from "@/lib/schema";
+/**
+ * The lesson registry, for both tracks.
+ *
+ * This file holds lesson DATA only. It never imports an evaluation engine, so
+ * importing it from the sidebar or the overview does not drag sql.js or the
+ * Excel evaluator into a page that does not need them. The SQL engine is
+ * reached only through lib/sql/client.ts, which is imported only under
+ * app/sql/*. BRIEF.md section 7, route-level asset isolation.
+ */
+
+import type { ExcelLesson, Lesson, SqlLesson, Track } from "@/lib/schema";
 import { sum } from "./lessons/sum";
 import { average } from "./lessons/average";
 import { count } from "./lessons/count";
@@ -17,9 +27,10 @@ import { textParts } from "./lessons/text-parts";
 import { trimLen } from "./lessons/trim-len";
 import { concat } from "./lessons/concat";
 import { indexMatch } from "./lessons/index-match";
+import { groupBy } from "./sql/group-by";
 
-/** Every lesson, sorted by the order they appear in the sidebar and grid. */
-export const LESSONS: Lesson[] = [
+/** The Excel track, in curriculum order. BRIEF.md section 3.1. */
+export const EXCEL_LESSONS: ExcelLesson[] = [
   sum,
   average,
   count,
@@ -40,20 +51,54 @@ export const LESSONS: Lesson[] = [
   indexMatch,
 ].sort((a, b) => a.order - b.order);
 
-export function getLesson(id: string): Lesson | undefined {
-  return LESSONS.find((l) => l.id === id);
+/**
+ * The SQL track, in curriculum order. BRIEF.md section 3.2.
+ *
+ * GROUP BY is the reference implementation and sits at order 5, where it will
+ * stay when the other seven arrive. The track is deliberately incomplete: the
+ * validator reports the shortfall rather than pretending eight exist.
+ */
+export const SQL_LESSONS: SqlLesson[] = [groupBy].sort((a, b) => a.order - b.order);
+
+/** How many lessons each track will have when its MVP is complete. */
+export const TRACK_TARGET: Record<Track, number> = { excel: 18, sql: 8 };
+
+export const TRACK_LABEL: Record<Track, string> = { excel: "Excel", sql: "SQL" };
+
+export function lessonsFor(track: Track): Lesson[] {
+  return track === "excel" ? EXCEL_LESSONS : SQL_LESSONS;
 }
 
-export function lessonIndex(id: string): number {
-  return LESSONS.findIndex((l) => l.id === id);
+export const ALL_LESSONS: Lesson[] = [...EXCEL_LESSONS, ...SQL_LESSONS];
+
+export function getLesson(track: Track, id: string): Lesson | undefined {
+  return lessonsFor(track).find((l) => l.id === id);
 }
 
-export function nextLesson(id: string): Lesson | undefined {
-  const i = lessonIndex(id);
-  return i === -1 ? undefined : LESSONS[i + 1];
+export function getExcelLesson(id: string): ExcelLesson | undefined {
+  return EXCEL_LESSONS.find((l) => l.id === id);
 }
 
-export const TOTAL_EXERCISES = LESSONS.reduce(
-  (n, l) => n + l.exercises.length,
-  0,
-);
+export function getSqlLesson(id: string): SqlLesson | undefined {
+  return SQL_LESSONS.find((l) => l.id === id);
+}
+
+/** The next lesson within the same track. Tracks never run into each other. */
+export function nextLesson(track: Track, id: string): Lesson | undefined {
+  const list = lessonsFor(track);
+  const i = list.findIndex((l) => l.id === id);
+  return i === -1 ? undefined : list[i + 1];
+}
+
+export function exerciseCount(track: Track): number {
+  return lessonsFor(track).reduce((n, l) => n + l.exercises.length, 0);
+}
+
+export const TOTAL_EXERCISES = exerciseCount("excel") + exerciseCount("sql");
+
+/**
+ * Reserved because /sql/cheat-sheet is a static segment sitting beside the
+ * dynamic /sql/[id]. The static route wins, so a lesson with this id would be
+ * unreachable. Validator rule 10 refuses it rather than leaving the trap.
+ */
+export const RESERVED_LESSON_IDS = ["cheat-sheet"];

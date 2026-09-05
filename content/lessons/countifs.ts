@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -53,7 +53,8 @@ const sheet: Sheet = {
   },
 };
 
-export const countifs: Lesson = {
+export const countifs: ExcelLesson = {
+  track: "excel",
   id: "countifs",
   name: "COUNTIFS",
   blurb: "Count rows that meet several conditions at once",

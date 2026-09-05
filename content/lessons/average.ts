@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -53,7 +53,8 @@ const sheet: Sheet = {
   },
 };
 
-export const average: Lesson = {
+export const average: ExcelLesson = {
+  track: "excel",
   id: "average",
   name: "AVERAGE",
   blurb: "Find the middle of a set of numbers",

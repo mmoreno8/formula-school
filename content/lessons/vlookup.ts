@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -46,7 +46,8 @@ const sheet: Sheet = {
   },
 };
 
-export const vlookup: Lesson = {
+export const vlookup: ExcelLesson = {
+  track: "excel",
   id: "vlookup",
   name: "VLOOKUP",
   blurb: "The older lookup you will still meet in real files",

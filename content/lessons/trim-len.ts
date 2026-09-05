@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -15,7 +15,8 @@ const sheet: Sheet = {
   },
 };
 
-export const trimLen: Lesson = {
+export const trimLen: ExcelLesson = {
+  track: "excel",
   id: "trim-len",
   name: "TRIM and LEN",
   blurb: "Clean stray spaces and measure text length",

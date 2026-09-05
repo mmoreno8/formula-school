@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
-import type { Exercise, Lesson } from "@/lib/schema";
-import { LESSONS, nextLesson } from "@/content";
+import type { Exercise, ExcelLesson } from "@/lib/schema";
+import { EXCEL_LESSONS, nextLesson } from "@/content";
 import {
   lessonProgress,
   markBuilt,
@@ -24,7 +24,7 @@ import { RangeTask } from "@/components/engine/exercises/RangeTask";
 
 const STEPS = ["Understand", "Build", "Practise", "Done"] as const;
 
-export function LessonView({ lesson }: { lesson: Lesson }) {
+export function LessonView({ lesson }: { lesson: ExcelLesson }) {
   const [step, setStep] = useState(0);
   const progress = useProgress();
   const state = lessonProgress(progress, lesson.id);
@@ -36,7 +36,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
 
   const onBuilt = useCallback(() => markBuilt(lesson.id), [lesson.id]);
 
-  const next = useMemo(() => nextLesson(lesson.id), [lesson.id]);
+  const next = useMemo(() => nextLesson("excel", lesson.id), [lesson.id]);
   const exerciseIds = useMemo(
     () => lesson.exercises.map((e) => e.id),
     [lesson.exercises],
@@ -309,7 +309,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
         </div>
 
         <p className="mt-5 border-t border-line pt-4 text-[12.5px] text-ink-3">
-          Lesson {lesson.order} of {LESSONS.length}
+          Lesson {lesson.order} of {EXCEL_LESSONS.length}
         </p>
       </aside>
     </div>

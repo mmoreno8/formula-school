@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -15,7 +15,8 @@ const sheet: Sheet = {
   },
 };
 
-export const andOr: Lesson = {
+export const andOr: ExcelLesson = {
+  track: "excel",
   id: "and-or",
   name: "AND and OR",
   blurb: "Test whether every condition or any condition is true",

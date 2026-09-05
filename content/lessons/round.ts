@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -14,7 +14,8 @@ const sheet: Sheet = {
   },
 };
 
-export const roundLesson: Lesson = {
+export const roundLesson: ExcelLesson = {
+  track: "excel",
   id: "round",
   name: "ROUND",
   blurb: "Control how many decimal places a result keeps",

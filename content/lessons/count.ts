@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 /** C6 is blank and C4 holds text, which is the whole point of this lesson:
@@ -49,7 +49,8 @@ const sheet: Sheet = {
   },
 };
 
-export const count: Lesson = {
+export const count: ExcelLesson = {
+  track: "excel",
   id: "count",
   name: "COUNT and COUNTA",
   blurb: "Count numbers, or count anything at all",

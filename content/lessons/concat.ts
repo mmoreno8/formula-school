@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -15,7 +15,8 @@ const sheet: Sheet = {
   },
 };
 
-export const concat: Lesson = {
+export const concat: ExcelLesson = {
+  track: "excel",
   id: "concat",
   name: "CONCAT",
   blurb: "Join text and cell values into one result",

@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 /** Otago appears four times and five amounts clear 1000, so the two natural
@@ -46,7 +46,8 @@ const sheet: Sheet = {
   },
 };
 
-export const countif: Lesson = {
+export const countif: ExcelLesson = {
+  track: "excel",
   id: "countif",
   name: "COUNTIF",
   blurb: "Count only the rows that meet a condition",

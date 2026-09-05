@@ -1,4 +1,4 @@
-import type { Lesson, Sheet } from "@/lib/schema";
+import type { ExcelLesson, Sheet } from "@/lib/schema";
 import { SIGNATURES } from "@/lib/signatures";
 
 const sheet: Sheet = {
@@ -16,7 +16,8 @@ const sheet: Sheet = {
   },
 };
 
-export const iferror: Lesson = {
+export const iferror: ExcelLesson = {
+  track: "excel",
   id: "iferror",
   name: "IFERROR",
   blurb: "Replace formula errors with a useful result",
