@@ -283,10 +283,10 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
-if (LESSONS.length === 10 && exerciseCount === 30) {
-  console.log("Ten lessons, thirty exercises, all green.");
+if (LESSONS.length === 18 && exerciseCount === 54) {
+  console.log("Eighteen lessons, fifty-four exercises, all green.");
 } else {
   console.log(
-    `Note: the brief calls for 10 lessons and 30 exercises. Currently ${LESSONS.length} and ${exerciseCount}.`,
+    `Note: the brief calls for 18 lessons and 54 exercises. Currently ${LESSONS.length} and ${exerciseCount}.`,
   );
 }

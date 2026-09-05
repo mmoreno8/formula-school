@@ -4,21 +4,23 @@ import { checkFormula } from "@/lib/evaluator";
 import { signatureFor } from "@/lib/signatures";
 
 describe("curriculum", () => {
-  it("has ten lessons and thirty exercises", () => {
-    expect(LESSONS).toHaveLength(10);
-    expect(TOTAL_EXERCISES).toBe(30);
+  it("has eighteen lessons and fifty-four exercises", () => {
+    expect(LESSONS).toHaveLength(18);
+    expect(TOTAL_EXERCISES).toBe(54);
   });
 
-  it("orders the lessons 1 to 10 with unique ids", () => {
-    expect(LESSONS.map((l) => l.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    expect(new Set(LESSONS.map((l) => l.id)).size).toBe(10);
+  it("orders the lessons 1 to 18 with unique ids", () => {
+    expect(LESSONS.map((l) => l.order)).toEqual(Array.from({ length: 18 }, (_, i) => i + 1));
+    expect(new Set(LESSONS.map((l) => l.id)).size).toBe(18);
   });
 
-  it("builds XLOOKUP last and SUM first", () => {
+  it("keeps the original course first and places INDEX/MATCH last", () => {
     expect(LESSONS[0].id).toBe("sum");
     expect(LESSONS[9].id).toBe("xlookup");
     expect(nextLesson("vlookup")?.id).toBe("xlookup");
-    expect(nextLesson("xlookup")).toBeUndefined();
+    expect(nextLesson("xlookup")?.id).toBe("min-max");
+    expect(LESSONS[17].id).toBe("index-match");
+    expect(nextLesson("index-match")).toBeUndefined();
     expect(getLesson("nope")).toBeUndefined();
   });
 

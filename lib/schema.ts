@@ -112,8 +112,8 @@ export interface Lesson {
   name: string;
   /** One line for the grid card. */
   blurb: string;
-  group: "basics" | "logic" | "conditional" | "lookups";
-  /** 1..10, drives sidebar and grid order. */
+  group: "basics" | "logic" | "conditional" | "lookups" | "text";
+  /** Drives sidebar and grid order. */
   order: number;
   /** Usually one. Lesson 3 carries COUNT and COUNTA. */
   signatures: Signature[];

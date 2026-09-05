@@ -71,6 +71,46 @@ describe("blank and text cells", () => {
   });
 });
 
+describe("expanded numeric functions", () => {
+  it("finds the minimum and maximum numeric values", () => {
+    expect(value("=MIN(D2:D9)")).toBe(560);
+    expect(value("=MAX(D2:D9)")).toBe(2110);
+  });
+
+  it("rounds to decimal and whole-number positions", () => {
+    expect(value("=ROUND(76.3596,2)")).toBe(76.36);
+    expect(value("=ROUND(1288.74,0)")).toBe(1289);
+    expect(value("=ROUND(-1.5,0)")).toBe(-2);
+  });
+});
+
+describe("logic and error handling", () => {
+  it("combines conditions with AND and OR", () => {
+    expect(value("=AND(D2>1000,D3<1000)")).toBe(true);
+    expect(value("=AND(D2>1000,D3>1000)")).toBe(false);
+    expect(value("=OR(D2<1000,D3<1000)")).toBe(true);
+  });
+
+  it("uses IFERROR only when the first value is an error", () => {
+    expect(value('=IFERROR(XLOOKUP(9999,A2:A9,C2:C9),"Missing")')).toBe("Missing");
+    expect(value('=IFERROR(XLOOKUP(1047,A2:A9,C2:C9),"Missing")')).toBe("Otago");
+  });
+});
+
+describe("text functions", () => {
+  it("extracts text from the left, right and middle", () => {
+    expect(value('=LEFT("NZ-AKL-1042",2)')).toBe("NZ");
+    expect(value('=RIGHT("NZ-AKL-1042",4)')).toBe("1042");
+    expect(value('=MID("NZ-AKL-1042",4,3)')).toBe("AKL");
+  });
+
+  it("cleans, measures and joins text", () => {
+    expect(value('=TRIM("  North   Wind ")')).toBe("North Wind");
+    expect(value('=LEN(TRIM("  North   Wind "))')).toBe(10);
+    expect(value('=CONCAT("North"," ","Wind")')).toBe("North Wind");
+  });
+});
+
 describe("conditional functions", () => {
   it("COUNTIF matches text case insensitively", () => {
     expect(value('=COUNTIF(C2:C9,"Otago")')).toBe(3);
@@ -133,6 +173,11 @@ describe("lookups", () => {
   it("VLOOKUP cannot look to its left", () => {
     const v = value("=VLOOKUP(1047,A2:D9,5,FALSE)");
     expect(isError(v) && v.code).toBe("#REF!");
+  });
+
+  it("combines exact MATCH positions with INDEX results", () => {
+    expect(value("=MATCH(1047,A2:A9,0)")).toBe(6);
+    expect(value("=INDEX(C2:C9,MATCH(1047,A2:A9,0))")).toBe("Otago");
   });
 });
 

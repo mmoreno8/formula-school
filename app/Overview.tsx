@@ -28,7 +28,7 @@ export function Overview() {
       <PageHeader
         crumbs={[{ label: "Home" }]}
         title="Overview"
-        description="Ten Excel formulas that turn up in real analyst work, taught one at a time. Your progress stays on this device."
+        description={`${LESSONS.length} Excel lessons that turn up in real analyst work, taught one at a time. Your progress stays on this device.`}
       />
 
       <section className="rounded-xl border border-line bg-card p-5 sm:p-6">
@@ -56,7 +56,7 @@ export function Overview() {
             <>
               <div>
                 <p className="text-[11.5px] tracking-wider text-ink-3 uppercase">
-                  All ten finished
+                  All {LESSONS.length} finished
                 </p>
                 <p className="mt-1.5 text-xl font-medium tracking-tight">
                   You have been through the whole course

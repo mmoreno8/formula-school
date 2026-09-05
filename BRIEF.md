@@ -5,8 +5,8 @@ testing and deployment). This file is the single source of truth. If something i
 it is not agreed. Anyone can propose a change, but change the file, do not change the code
 and hope.
 
-**Status: draft 3.** Ownership model changed, all open questions resolved, implementation
-approved to start.
+**Status: draft 4.** The first ten-lesson MVP is live. Manuel approved an eight-lesson Excel
+expansion on 5 September 2026.
 
 **Visual reference:** the clickable prototype is the design source of truth, not this document's
 descriptions. When they disagree, the prototype wins.
@@ -29,20 +29,21 @@ https://claude.ai/code/artifact/3374507e-758a-47d7-a19e-cb0763e68bad
 
 Draft 2 split implementation between Claude and Codex. That is cancelled.
 
-- **Claude owns the complete implementation.** Every file. Engine, chrome, content, all of it.
-- **Codex independently reviews, tests and deploys** the finished application.
+- **Claude owned the complete first-MVP implementation.** Every file. Engine, chrome, content,
+  all of it.
+- **Codex independently reviewed, tested and deployed** the first MVP.
 - Implementation work is not split. There is no parallel editing and no shared-file protocol.
 - Claude does not deploy. Codex owns verification and deployment.
 
-The reason for the change: a reviewer who did not write the code catches more than a co-author
-does. Codex's review of draft 2 found five real defects in this document before a line was
-written, which is the argument for keeping it in that role.
+For the Excel expansion approved on 5 September 2026, Manuel directly assigned implementation
+to Codex. Codex owns the eight new lessons, their evaluator support and their verification. This
+is a recorded exception rather than a silent change to the original arrangement.
 
 ---
 
 ## 1. What we are building
 
-A small website that teaches ten practical Excel formulas through short interactive exercises.
+A small website that teaches practical Excel formulas through short interactive exercises.
 Think W3Schools for Excel. It is not a spreadsheet clone and never will be.
 
 Each lesson takes one formula, frames it as a real workplace problem, and walks the learner
@@ -55,7 +56,7 @@ assumes an adult who is capable and slightly behind, not a beginner who needs ch
 
 ## 3. Curriculum
 
-Ten lessons, in this order:
+Eighteen lessons, in this order:
 
 | # | Lesson | Functions taught |
 |---|---|---|
@@ -69,9 +70,18 @@ Ten lessons, in this order:
 | 8 | SUMIFS | `SUMIFS` |
 | 9 | VLOOKUP | `VLOOKUP` |
 | 10 | XLOOKUP | `XLOOKUP` |
+| 11 | MIN and MAX | `MIN`, `MAX` |
+| 12 | ROUND | `ROUND` |
+| 13 | AND and OR | `AND`, `OR` (with `IF`) |
+| 14 | IFERROR | `IFERROR` (with `VLOOKUP`) |
+| 15 | LEFT, RIGHT and MID | `LEFT`, `RIGHT`, `MID` |
+| 16 | TRIM and LEN | `TRIM`, `LEN` |
+| 17 | CONCAT | `CONCAT` (with `LEFT`) |
+| 18 | INDEX and MATCH | `INDEX`, `MATCH` |
 
-XLOOKUP is built and tested first as the reference implementation, because it exercises every
-part of the system. It still ships tenth in the nav.
+XLOOKUP was built and tested first as the reference implementation, because it exercises every
+part of the system. It remains tenth so the original course order does not move under returning
+learners.
 
 **Lesson 3 carries two functions on purpose.** `COUNT` is the primary signature. `COUNTA` is
 introduced by comparison, because the difference between them is the thing that actually trips
@@ -303,8 +313,8 @@ export interface Lesson {
   id: string                      // "xlookup"
   name: string                    // "XLOOKUP"
   blurb: string                   // one line for the grid card
-  group: 'basics' | 'logic' | 'conditional' | 'lookups'
-  order: number                   // 1..10
+  group: 'basics' | 'logic' | 'conditional' | 'lookups' | 'text'
+  order: number                   // curriculum order
   signatures: Signature[]         // usually one. Lesson 3 has COUNT and COUNTA
   sheet: Sheet
   understand: { problem: string }
@@ -423,11 +433,10 @@ Not optional, and not a later pass.
 
 ## 10. Ownership
 
-**Claude:** the entire implementation. Engine, chrome, content, tokens, validator, README.
+**Claude:** the first-MVP implementation.
 
-**Codex:** independent review, testing and deployment. Codex does not write implementation code
-as part of this arrangement. If Codex finds defects it reports them; Manuel decides who fixes
-them.
+**Codex:** independent review, testing and deployment of the first MVP, plus the Excel expansion
+explicitly assigned by Manuel on 5 September 2026.
 
 **Manuel:** decides scope, arbitrates disagreements, owns the product.
 
@@ -465,8 +474,8 @@ keyboard access.
 
 Claude does not report completion until all of these are true:
 
-- All ten lessons load, each with exactly three real exercises. No placeholders anywhere
-- All thirty exercises plus the ten Build targets pass the validator, including negative cases
+- All eighteen lessons load, each with exactly three real exercises. No placeholders anywhere
+- All fifty-four exercises plus the eighteen Build targets pass the validator, including negative cases
 - Type checking, linting and the production build all pass with no errors, and the build writes `out/`
 - Progress survives a page refresh
 - Light and dark both read correctly on every page

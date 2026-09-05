@@ -237,6 +237,31 @@ export const FUNCTIONS: Record<string, Fn> = {
     return nums.reduce((a, b) => a + b, 0) / nums.length;
   },
 
+  MIN(args) {
+    const nums = numbersIn(args);
+    if (isError(nums)) return nums;
+    return nums.length === 0 ? 0 : Math.min(...nums);
+  },
+
+  MAX(args) {
+    const nums = numbersIn(args);
+    if (isError(nums)) return nums;
+    return nums.length === 0 ? 0 : Math.max(...nums);
+  },
+
+  ROUND(args) {
+    if (args.length !== 2) return err("#VALUE!");
+    const number = toNumber(args[0]);
+    if (isError(number)) return number;
+    const digits = toNumber(args[1]);
+    if (isError(digits)) return digits;
+    const places = Math.trunc(digits);
+    const factor = 10 ** places;
+    if (!Number.isFinite(factor)) return err("#NUM!");
+    const scaled = Math.abs(number) * factor;
+    return Math.sign(number) * Math.floor(scaled + 0.5 + Number.EPSILON) / factor;
+  },
+
   COUNT(args) {
     let n = 0;
     for (const a of args) {
@@ -269,6 +294,96 @@ export const FUNCTIONS: Record<string, Fn> = {
     if (isError(test)) return test;
     if (test) return toScalar(args[1]);
     return args.length > 2 ? toScalar(args[2]) : false;
+  },
+
+  AND(args) {
+    if (args.length === 0) return err("#VALUE!");
+    for (const arg of args) {
+      const values = isMatrix(arg) ? flatten(arg) : [arg];
+      for (const value of values) {
+        const result = toBoolean(value);
+        if (isError(result)) return result;
+        if (!result) return false;
+      }
+    }
+    return true;
+  },
+
+  OR(args) {
+    if (args.length === 0) return err("#VALUE!");
+    for (const arg of args) {
+      const values = isMatrix(arg) ? flatten(arg) : [arg];
+      for (const value of values) {
+        const result = toBoolean(value);
+        if (isError(result)) return result;
+        if (result) return true;
+      }
+    }
+    return false;
+  },
+
+  IFERROR(args) {
+    if (args.length !== 2) return err("#VALUE!");
+    return isError(args[0]) ? toScalar(args[1]) : toScalar(args[0]);
+  },
+
+  LEFT(args) {
+    if (args.length < 1 || args.length > 2) return err("#VALUE!");
+    const text = toText(args[0]);
+    if (isError(text)) return text;
+    const count = args.length === 2 ? toNumber(args[1]) : 1;
+    if (isError(count)) return count;
+    if (count < 0) return err("#VALUE!");
+    return text.slice(0, Math.trunc(count));
+  },
+
+  RIGHT(args) {
+    if (args.length < 1 || args.length > 2) return err("#VALUE!");
+    const text = toText(args[0]);
+    if (isError(text)) return text;
+    const count = args.length === 2 ? toNumber(args[1]) : 1;
+    if (isError(count)) return count;
+    if (count < 0) return err("#VALUE!");
+    const n = Math.trunc(count);
+    return n === 0 ? "" : text.slice(-n);
+  },
+
+  MID(args) {
+    if (args.length !== 3) return err("#VALUE!");
+    const text = toText(args[0]);
+    if (isError(text)) return text;
+    const start = toNumber(args[1]);
+    if (isError(start)) return start;
+    const count = toNumber(args[2]);
+    if (isError(count)) return count;
+    if (start < 1 || count < 0) return err("#VALUE!");
+    return text.slice(Math.trunc(start) - 1, Math.trunc(start) - 1 + Math.trunc(count));
+  },
+
+  LEN(args) {
+    if (args.length !== 1) return err("#VALUE!");
+    const text = toText(args[0]);
+    return isError(text) ? text : text.length;
+  },
+
+  TRIM(args) {
+    if (args.length !== 1) return err("#VALUE!");
+    const text = toText(args[0]);
+    return isError(text) ? text : text.trim().replace(/\s+/g, " ");
+  },
+
+  CONCAT(args) {
+    if (args.length === 0) return err("#VALUE!");
+    let result = "";
+    for (const arg of args) {
+      const values = isMatrix(arg) ? flatten(arg) : [arg];
+      for (const value of values) {
+        const text = toText(value);
+        if (isError(text)) return text;
+        result += text;
+      }
+    }
+    return result;
   },
 
   COUNTIF(args) {
@@ -431,6 +546,50 @@ export const FUNCTIONS: Record<string, Fn> = {
       }
     });
     return chosen === -1 ? miss() : back[chosen];
+  },
+
+  INDEX(args) {
+    if (args.length < 2 || args.length > 3) return err("#VALUE!");
+    const matrix = asMatrix(args[0]);
+    if (isError(matrix)) return matrix;
+    const row = toNumber(args[1]);
+    if (isError(row)) return row;
+    const col = args.length === 3 ? toNumber(args[2]) : 1;
+    if (isError(col)) return col;
+    const r = Math.trunc(row);
+    const c = Math.trunc(col);
+    if (r < 1 || c < 1) return err("#VALUE!");
+    if (r > matrix.values.length || c > (matrix.values[0]?.length ?? 0)) {
+      return err("#REF!");
+    }
+    return matrix.values[r - 1]?.[c - 1] ?? null;
+  },
+
+  MATCH(args) {
+    if (args.length < 2 || args.length > 3) return err("#VALUE!");
+    const needle = toScalar(args[0]);
+    if (isError(needle)) return needle;
+    const matrix = asMatrix(args[1]);
+    if (isError(matrix)) return matrix;
+    const values = vector(matrix);
+    if (isError(values)) return values;
+    const modeRaw = args.length === 3 ? toNumber(args[2]) : 1;
+    if (isError(modeRaw)) return modeRaw;
+    const mode = Math.trunc(modeRaw);
+
+    if (mode === 0) {
+      const found = values.findIndex((value) => looseEquals(value, needle));
+      return found === -1 ? err("#N/A") : found + 1;
+    }
+
+    let chosen = -1;
+    values.forEach((value, index) => {
+      const comparison = compare(value, needle);
+      if (isError(comparison)) return;
+      if (mode === 1 && comparison <= 0) chosen = index;
+      if (mode === -1 && comparison >= 0 && chosen === -1) chosen = index;
+    });
+    return chosen === -1 ? err("#N/A") : chosen + 1;
   },
 };
 
