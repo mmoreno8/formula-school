@@ -5,12 +5,30 @@ testing and deployment). This file is the single source of truth. If something i
 it is not agreed. Anyone can propose a change, but change the file, do not change the code
 and hope.
 
-**Status: draft 4.** The first ten-lesson MVP is live. Manuel approved an eight-lesson Excel
-expansion on 5 September 2026.
+**Status: draft 5.** Manuel approved an eight-lesson SQL track on 6 September 2026. Nothing in the
+SQL track is built yet.
+
+**Deployment status, corrected in review.** These are three different things and the brief has
+conflated them before:
+
+| | State |
+|---|---|
+| Live in production | The ten-lesson MVP, from `0f87a6f` and `7154d60` |
+| Pushed to `origin/main` | Up to `1d6b6ba`, the manual deployment workflow |
+| Local only | `a151838`, the eighteen-lesson Excel expansion. Committed, complete, validator green, **not pushed and therefore not deployed** |
+
+Production deploys are `workflow_dispatch` only and build from `main` on the remote, so nothing
+reaches production until it is pushed and the workflow is run by hand. "Complete and green" is a
+statement about the working tree. It is not a statement about what a learner can visit.
+
+Draft history: draft 4 was the eight-lesson Excel expansion approved on 5 September 2026. Draft 5
+adds the SQL track and is the first time the product has had two tracks.
 
 **Visual reference:** the clickable prototype is the design source of truth, not this document's
 descriptions. When they disagree, the prototype wins.
-https://claude.ai/code/artifact/3374507e-758a-47d7-a19e-cb0763e68bad
+
+- Excel: https://claude.ai/code/artifact/3374507e-758a-47d7-a19e-cb0763e68bad
+- SQL: https://claude.ai/code/artifact/96853852-2350-4eaa-bd1d-8a2bb42ce636
 
 ---
 
@@ -24,6 +42,11 @@ https://claude.ai/code/artifact/3374507e-758a-47d7-a19e-cb0763e68bad
 | Unbuilt nav pages | Hidden until the features exist. See section 7 |
 | Hosting | Cloudflare Pages. Codex connects the GitHub repo after review |
 | Domain | Deferred. Not `jobtap.nz` |
+| Second track | SQL, approved 6 September 2026. Eight lessons for the MVP |
+| SQL engine | `sql.js`. SQLite compiled to WebAssembly, running in the browser |
+| SQL dialect | SQLite. The interface says "SQLite SQL" and states that the concepts transfer |
+| SQL route | `/sql`, with the cheat sheet nested at `/sql/cheat-sheet` |
+| Deployment economy | One preview deployment near the end, one production release after approval |
 
 ### Ownership model (changed in draft 3)
 
@@ -55,6 +78,11 @@ People moving into data analytics from somewhere else. Manuel is the first user.
 assumes an adult who is capable and slightly behind, not a beginner who needs cheering up.
 
 ## 3. Curriculum
+
+Two tracks. Eighteen Excel lessons, complete and validator green. Eight SQL lessons, approved and
+unbuilt.
+
+### 3.1 Excel track
 
 Eighteen lessons, in this order:
 
@@ -88,17 +116,66 @@ introduced by comparison, because the difference between them is the thing that 
 people up, and at least one exercise must turn on that difference. The schema supports this
 through `signatures: Signature[]` rather than a single signature.
 
+### 3.2 SQL track
+
+Eight lessons for the MVP, in this order:
+
+| # | Lesson | Teaches |
+|---|---|---|
+| 1 | SELECT | `SELECT`, `FROM` |
+| 2 | WHERE | `WHERE` |
+| 3 | ORDER BY and LIMIT | `ORDER BY`, `LIMIT` |
+| 4 | Aggregates | `COUNT`, `SUM`, `AVG`, `MIN`, `MAX` |
+| 5 | GROUP BY | `GROUP BY` |
+| 6 | HAVING | `HAVING` |
+| 7 | DISTINCT | `DISTINCT` |
+| 8 | JOIN | `INNER JOIN`, `ON` |
+
+Eight ends at JOIN because that is the first coherent stopping point. Stopping earlier would
+teach grouping and never join anything.
+
+**GROUP BY is built and tested first as the reference implementation**, the role XLOOKUP played
+for Excel. It exercises aggregation, the clause guidance line, and multi-row result comparison at
+once. It remains fifth so the course order does not move.
+
+**Deferred to a later phase, not cut:** LEFT JOIN, CASE WHEN, subqueries, and date handling.
+LEFT JOIN is the most likely first addition, because finding what is missing is where interviews
+are actually lost.
+
+**The dialect is SQLite**, because the engine runs in the browser. Of the concepts above, all
+eight are written identically in SQLite, MySQL and PostgreSQL at this level. Dialect divergence
+starts at date handling, which is one reason it sits in the deferred set rather than the MVP.
+The interface says "SQLite SQL" and states plainly that the concepts transfer.
+
 ## 4. Non-goals
 
-No user accounts. No database. No payments. No AI tutor. No Microsoft API. No spreadsheet clone.
-No ribbon, no menus, no cell formatting, no multi-sheet workbooks. No downloadable workbooks.
-No streaks, no badges, no confetti. No lesson gating: all ten are open from the first visit.
+No user accounts. **No server-side database.** No payments. No AI tutor. No Microsoft API. No
+spreadsheet clone. No ribbon, no menus, no cell formatting, no multi-sheet workbooks. No
+downloadable workbooks. No streaks, no badges, no confetti. No lesson gating: every lesson in
+both tracks is open from the first visit.
+
+**Amended in draft 5.** This line previously read "No database" with no qualifier. That was
+always about not storing user data on a server, but the text did not say so, and as written it
+ruled out the SQL track's teaching engine. The rule is now explicit: no server-side database, and
+no persistence of any kind beyond `localStorage`. SQLite compiled to WebAssembly, running inside
+the learner's browser and holding nothing between page loads, is the SQL track's teaching engine
+and is not a database in the sense this non-goal means.
 
 **No server-side anything.** No route handlers, no API routes, no server actions, no middleware,
-no databases, no runtime server dependencies. The app is a pure static export and must stay one.
-`next.config.ts` sets `output: "export"`, every lesson route is generated at build time through
-`generateStaticParams`, and `npm run build` writes a self-contained `out/` directory. Break any of
-this and the build stops producing something Cloudflare Pages can host.
+no backend query execution, no runtime server dependencies. The app is a pure static export and
+must stay one. `next.config.ts` sets `output: "export"`, every lesson route in both tracks is
+generated at build time through `generateStaticParams`, and `npm run build` writes a
+self-contained `out/` directory. Break any of this and the build stops producing something
+Cloudflare Pages can host.
+
+This rule is why the SQL track runs SQLite in the browser rather than sending queries to a server.
+Client-side execution avoids requiring Formula School to introduce backend query infrastructure,
+accounts or server-side persistence. It is what lets the product stay free, keep working with no
+sign-up, and remain a folder of static files.
+
+**Explicitly out of scope for the SQL MVP**, on top of the above: no MySQL or PostgreSQL dialect
+selector, no Python or R, no saved query history, no interview-question library, and no backend
+execution service.
 
 ---
 
@@ -145,14 +222,46 @@ Nobody writes a hex outside `globals.css`. Retrofitting dark mode after fifty co
 is painful, which is why it is decided now.
 
 **5.10 The home page is a card grid, not a list.**
-Ten cards, each with the formula name, one line on what it does, a progress bar, and how many
+One card per lesson, each with the name, one line on what it does, a progress bar, and how many
 exercises are done.
+
+### Added in draft 5, for the SQL track
+
+**5.11 SQL runs in the browser, not on a server.**
+`sql.js`, SQLite compiled to WebAssembly, loaded as a static asset. Lesson databases are tiny and
+temporary, seeded at page load and thrown away. This is the decision the whole track rests on, so
+Codex proves it in isolation before any lesson work starts. See section 10.
+
+**5.12 The SQL Build step has two buttons where Excel has none.**
+Excel shows a live result as you type and grades implicitly. SQL splits it. **Run query** executes
+and shows the result without judging it. **Check answer** grades. This is a deliberate divergence
+and not an inconsistency: a spreadsheet formula returns one value that can update on every
+keystroke, whereas a query returns a table and is often deliberately run half-finished to see what
+came back. Exploring without being marked is how people actually learn SQL. Syntax errors still do
+not count as attempts, in both tracks.
+
+**5.13 SQL exercises are a difficulty ramp, not a menu of types.**
+Excel draws its three exercises from four interchangeable types. SQL's three are ordered and
+always the same shape: fill the missing pieces, then write a guided query, then answer a short
+business request with no scaffold. The learner writes SQL in all three, with the support removed a
+step at a time. `choice` is not used in the SQL track.
+
+**5.14 Grading executes the canonical solution rather than trusting a stored value.**
+Excel exercises declare an `expected` value that the validator checks against the canonical
+formula. SQL does not store an expected result set at all. On **Check answer** the learner's query
+and the canonical query both execute against fresh copies of the same lesson database, and the two
+result sets are compared. The canonical query is the single source of truth and cannot drift away
+from a hand-written expected value. The validator's job shifts accordingly: it asserts that the
+canonical query runs, returns rows, and rejects every query in `rejects`.
 
 ---
 
 ## 6. Lesson flow
 
-Four steps, shown as a rail beside the lesson.
+Four steps, shown as a rail beside the lesson. **Both tracks use the same four steps and the same
+rail.** What changes is the surface underneath them.
+
+### 6.1 Excel
 
 **Understand.** A short real problem in plain words, then the formula signature with each
 argument as a coloured chip: `=XLOOKUP(who to find, where to look, what to bring back)`.
@@ -165,6 +274,63 @@ one correct result.
 select a range on the grid, enter the complete formula.
 
 **Done.** Three takeaway bullets, progress, back to the list, redo the lesson.
+
+### 6.2 SQL
+
+**Understand.** A short workplace problem in plain words, a preview of the lesson's tables, and
+the query shape in plain language. No video, no lecture, no theory section.
+
+```
+SELECT what_you_need
+FROM where_it_lives
+WHERE which_rows_to_keep;
+```
+
+**Build.** The guided query editor. Tables and columns visible, starter SQL already in the
+editor, clause guidance underneath it, and the two buttons from 5.12. Run query shows the result.
+Check answer grades it.
+
+**Practise.** Exactly three exercises, always in this order and always this shape:
+
+1. Fill the missing pieces of a query
+2. Write a guided query
+3. Answer a short independent business request
+
+**Done.** Identical to Excel. Three takeaways, lesson marked finished, progress saved locally,
+link to the next SQL lesson.
+
+### 6.3 The SQL workspace
+
+SQL results are tables, so the Build and Practise steps get a wider two-column working surface
+than Excel needs. Understand and Done stay single column and match the Excel track exactly.
+
+Desktop:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ SQL · WHERE                              Lesson 2 of 8  │
+├──────────────────────┬──────────────────────────────────┤
+│ The problem          │ SQLite SQL                       │
+│                      │                                  │
+│ Keep only orders     │ SELECT customer, amount          │
+│ from Auckland.       │ FROM orders                      │
+│                      │ WHERE ...                        │
+│ Tables               │                                  │
+│ orders               │ [Run query]  [Check answer]      │
+│                      ├──────────────────────────────────┤
+│ Sample rows          │ Results                          │
+│ customer | city      │ customer | amount                │
+│ Ana      | Auckland  │ Ana      | 420                   │
+└──────────────────────┴──────────────────────────────────┘
+```
+
+Mobile stacks in reading order: problem, then tables and sample rows, then the editor, then the
+buttons, then results.
+
+**The visual system does not change.** Warm neutrals, hairline borders, no shadows, monospace for
+anything that is SQL. Green stays rationed to the four roles in section 9. This is Formula School
+with a wider working area, not a coding platform with a different skin, and no part of it turns
+neon because it now contains an editor.
 
 ### Feedback progression
 
@@ -216,11 +382,25 @@ claim it.
 
 | Page | Route | What it is |
 |---|---|---|
-| Overview | `/` | Where you are up to, and the next thing to do |
-| Formulas | `/formulas` | The ten-card grid |
-| Cheat sheet | `/cheat-sheet` | Every signature on one page, generated from lesson data |
+| Overview | `/` | Both tracks. Where you are up to, and the next thing to do |
+| Formulas | `/formulas` | The Excel card grid |
+| Excel lesson | `/formulas/[id]` | For example `/formulas/xlookup` |
+| Cheat sheet | `/cheat-sheet` | Every Excel signature, generated from lesson data |
+| SQL | `/sql` | The SQL card grid |
+| SQL lesson | `/sql/[id]` | For example `/sql/group-by` |
+| SQL cheat sheet | `/sql/cheat-sheet` | Every SQL clause, generated from lesson data |
 
-Lessons live at `/formulas/[id]`, for example `/formulas/xlookup`.
+Excel routes do not move. Nothing already deployed or bookmarked breaks.
+
+The sidebar groups the two tracks under labels and shows a progress bar for each. The Overview
+speaks for both and does not favour one.
+
+**The cheat sheets stay separate.** One page mixing Excel signatures with SQL clauses helps
+nobody, and both are generated from lesson data, so two pages is barely more work than one.
+
+**Route note for implementation.** `/sql/cheat-sheet` is a static segment sitting beside the
+dynamic `/sql/[id]`. The static route wins, and no lesson may take the id `cheat-sheet`. The
+validator should reject that id rather than leave it as a trap.
 
 **Hidden until the feature genuinely exists.** Not stubs, not empty states, not in the nav at
 all: Practice, Mistakes, Your results, What's new, Contact. Four of six doors being empty makes
@@ -333,6 +513,189 @@ export interface Lesson {
 }
 ```
 
+### The SQL half of the contract
+
+The split is a discriminated union on `track`. **One application, two tracks, not a forked app.**
+Not one engine: Excel and SQL have genuinely separate evaluation engines, the hand-written
+evaluator and `sql.js`. What they share is the shell around them, listed in section 7.
+`ExerciseBase` is untouched: `id`, `prompt`, `hint`, `hint2`, `explanation`. The hint ladder does
+not change.
+
+```ts
+export type Track = 'excel' | 'sql'
+
+export interface Table {
+  name: string                    // "orders"
+  cols: string[]                  // ["id","customer","city","amount"]
+  rows: (string | number | null)[][]
+}
+
+export interface TableSet {
+  tables: Table[]                 // seeded into a fresh SQLite db per lesson
+}
+
+export interface ClauseSpec {
+  kw: string                      // "WHERE", shown in the guidance line
+  label: string                   // "which rows to keep", shown as a chip
+  tint: 'lookup' | 'search' | 'return' | 'test' | 'plain'
+  optional?: boolean
+}
+
+export interface SqlLesson {
+  track: 'sql'
+  id: string                      // "group-by"
+  name: string                    // "GROUP BY"
+  blurb: string
+  order: number
+  group: 'reading' | 'filtering' | 'grouping' | 'joining'
+  db: TableSet
+  clauses: ClauseSpec[]
+  shape: string                   // the plain-language query shape for Understand
+  understand: { problem: string }
+  build: {
+    target: string                // what the learner is asked to produce
+    starter: string               // SQL already in the editor
+    canonical: string             // the model answer. The source of truth
+    mustUse?: string[]            // ["GROUP BY"]. Detected as tokens, not substrings
+    orderMatters: boolean         // required, never defaulted. See the validator, rule 12
+    hint: string
+    hint2: string
+    explanation: string
+    rejects?: string[]            // MUST NOT pass. Checked by the validator
+  }
+  exercises: [SqlGapsExercise, SqlGuidedExercise, SqlFreeExercise]  // exactly 3, in order
+  takeaways: string[]             // exactly 3
+}
+```
+
+The three SQL exercise types carry the ramp described in 5.13. Added here because draft 5
+referenced them without defining them, which left a hole in the contract:
+
+```ts
+interface SqlExerciseBase extends ExerciseBase {
+  canonical: string               // the model answer, and the source of truth
+  mustUse?: string[]
+  orderMatters: boolean           // required on every exercise, never defaulted
+  rejects?: string[]
+}
+
+export interface SqlGapsExercise extends SqlExerciseBase {
+  type: 'sql-gaps'
+  template: string                // "SELECT region, {0}(amount) FROM orders {1} region"
+  gaps: { accept: string[]; tint: ClauseSpec['tint']; placeholder?: string }[]
+}
+
+export interface SqlGuidedExercise extends SqlExerciseBase {
+  type: 'sql-guided'
+  starter: string                 // SQL already in the editor
+  showClauseHint: true            // the guidance line stays visible
+}
+
+export interface SqlFreeExercise extends SqlExerciseBase {
+  type: 'sql-free'
+  // no starter, no clause hint. A sentence from a colleague and an empty editor
+}
+```
+
+### Answer checking, SQL
+
+**Run query** executes the learner's SQL against a fresh copy of the lesson database and shows
+whatever came back. Nothing is graded and no attempt is counted.
+
+**Check answer** executes two queries, the learner's and the lesson's `canonical`, each against
+its own fresh copy of the same database, and compares the two result sets.
+
+#### What the engine will accept, corrected in review
+
+Draft 5 originally leaned on fresh database copies to make a stray `DROP TABLE` harmless. That is
+not sufficient as a contract. `sql.js` will happily run anything, and a learner who runs
+`DELETE FROM orders` and then a `SELECT` gets a confusing wrong answer instead of an error. Two
+hard rules, enforced before execution in both Run query and Check answer:
+
+**Accepted:** exactly one statement, which must be a `SELECT` or a read-only `WITH`. An optional
+trailing semicolon is fine.
+
+**Refused:** `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `ALTER`, `DROP`, `ATTACH`, `DETACH`,
+`PRAGMA`, anything else that writes or changes structure, and any input containing more than one
+statement.
+
+Refusal is not a wrong attempt. The learner sees a plain message saying these lessons only read
+data, and the hint ladder does not move.
+
+Rejecting multiple statements is not only a safety rule. Comparing result sets is meaningless
+when there is more than one result to choose from.
+
+**The detection method is an open question for the technical proof.** A text-prefix check is not
+sufficient, because a string literal or a comment can contain any keyword. Step 3 has to determine
+how `sql.js` reliably identifies a read-only single statement, and report the smallest dependable
+method it finds. This brief states the required behaviour, not the implementation.
+
+**A fresh database per execution** still holds, as defence in depth rather than as the only
+defence. Every run and every check seeds a new in-memory database from the lesson's `TableSet`.
+
+#### How result sets are compared, corrected in review
+
+**Column names are normalized before comparison.** SQLite may preserve the literal text that
+produced a computed column as its output label, so a canonical `SUM(amount)` and a learner's
+`sum(amount)` can come back as different column names despite identical results. Comparing raw
+names fails correct learners on spelling alone. Normalization is:
+
+- compared case-insensitively
+- leading and trailing whitespace ignored
+- **column order still matters**, because the learner chooses it in the `SELECT` list
+
+Where a lesson requires a particular output name, the prompt must explicitly ask for that alias.
+A required alias is never implied.
+
+**One addition beyond the reviewed list, flagged for Codex to accept or reject.** Internal
+whitespace is also collapsed, so `SUM( amount )` normalizes to the same name as `SUM(amount)`.
+Leading and trailing trimming alone does not catch that case, and a learner who spaces out their
+arguments is not wrong. If the proof shows SQLite already normalizes this, the rule is redundant
+and should be dropped rather than left in as noise.
+
+**Rows are compared as a multiset, not as a list.** This replaces the two separate rules in the
+first draft of this section, which tried to check duplicates and order independently and left it
+ambiguous how. The rule is one rule with two modes:
+
+| `orderMatters` | Comparison |
+|---|---|
+| `false` | The two result sets must be equal as **multisets**. Same rows, each appearing the same number of times, in any order |
+| `true` | The two result sets must be equal as **ordered sequences**. Same rows, same multiplicities, same order |
+
+Multiset equality is not set equality. Rows cannot be collapsed into a set, because that silently
+loses duplicates and a query that drops or invents a duplicate row would pass. Duplicates must
+match in number in both modes. Implementation: canonicalize each row to a comparable key, sort
+both bags by that key, compare element-wise.
+
+**`orderMatters` has no default. Every exercise and every Build target states it explicitly**, and
+the validator fails a lesson that omits it. Ordering is one of the two most likely grading
+mistakes in the track, and a field you can forget to write is a field that will be forgotten. The
+schema keeps it required rather than optional for this reason.
+
+In this MVP `true` appears on lesson 3 alone. A correct `GROUP BY` answer must never fail because
+its rows came back in a different order. Getting this wrong tells correct people they are wrong,
+which is the exact failure 5.1 exists to prevent.
+
+**`NULL` equals `NULL` here**, and equals nothing else. This is deliberately not SQL's own
+three-valued logic. We are comparing two result sets for sameness, not evaluating a predicate.
+
+**SQL text is never compared.** Any query producing the correct result set passes, unless the
+lesson sets `mustUse` and the query does not use it. Two different correct queries are both
+correct.
+
+#### How `mustUse` is checked
+
+A substring search over the query text is wrong, and would accept this:
+
+```sql
+SELECT 'GROUP BY';
+```
+
+**Required clauses are detected as SQL tokens, outside comments and outside quoted strings.** A
+keyword inside a string literal or a comment does not count as using it. As with the read-only
+check, this brief states the required behaviour and the technical proof determines the smallest
+dependable implementation.
+
 ### The validator
 
 `npm run validate` runs every exercise and every Build target through the evaluator against its
@@ -356,6 +719,50 @@ rather than hide them:
 
 Where a negative case is impractical for an exercise, `rejects` may be omitted. It is required
 wherever a plausible wrong formula would otherwise coincidentally pass.
+
+### The validator, SQL
+
+`npm run validate` runs the SQL track through the same `sql.js` engine the browser uses, under
+`tsx` in Node. If it validates against anything other than the real engine it is not a gate. It
+fails on any of these:
+
+6. A `canonical` query throws, or returns zero rows
+7. A `gaps` exercise does not assemble into a query matching its canonical result
+8. A lesson does not have exactly three exercises, in the order set by 5.13, or exactly three takeaways
+9. A `TableSet` is not safely seedable. See the five checks below
+10. A lesson takes the reserved id `cheat-sheet`
+11. **A query listed in `rejects` is accepted as correct**
+12. An exercise or Build target omits `orderMatters`
+13. A `canonical` query is not an accepted read-only single statement, by the same rule the learner's query is held to
+
+**Rule 9 in full.** The first draft of this rule said "declares a column the seeded table does not
+have", which is not meaningful: a `Table` declares its columns and rows together, so there is no
+second source to disagree with. What the rule actually has to guarantee is that the `TableSet` can
+be turned into a SQLite database safely and unambiguously:
+
+- table names are unique within the lesson
+- column names are unique within each table
+- every row has exactly as many values as the table declares columns
+- every value is a `string`, a `number`, or `null`, and nothing else
+- table and column names are valid identifiers for seeding, so that seeding never depends on
+  quoting or escaping user-authored text
+
+**Rule 11 matters more in SQL than rule 5 does in Excel.** Wrong SQL coincidentally producing the
+right answer is far more common than wrong formulas doing it. A missing `GROUP BY` still returns
+one plausible row. An `INNER JOIN` where a `LEFT JOIN` was needed still returns a sensible-looking
+table, just a shorter one. Two rows swapped is invisible unless `orderMatters` is set correctly.
+
+So the lesson datasets are built to expose those mistakes rather than hide them, the same way the
+Excel sheets were built with duplicates and header traps:
+
+- a region with exactly one order, so a bad `GROUP BY` still looks reasonable but totals wrong
+- at least one row on each side of a join with no match, so `INNER` and `LEFT` genuinely differ
+- duplicate values in a column that `DISTINCT` lessons target
+- a `NULL` in an aggregated column, so `COUNT(col)` and `COUNT(*)` differ
+- ties in any column an `ORDER BY` lesson sorts on, so row order is actually load bearing
+
+`rejects` is required on every exercise where a plausible wrong query would otherwise pass. For
+the SQL track that is most of them.
 
 ---
 
@@ -433,12 +840,50 @@ Not optional, and not a later pass.
 
 ## 10. Ownership
 
-**Claude:** the first-MVP implementation.
+**Claude:** the first-MVP implementation, and the SQL track implementation.
 
-**Codex:** independent review, testing and deployment of the first MVP, plus the Excel expansion
-explicitly assigned by Manuel on 5 September 2026.
+**Codex:** independent review, testing and deployment of the first MVP, the Excel expansion
+explicitly assigned by Manuel on 5 September 2026, and the SQL engine proof and grading review
+below.
 
 **Manuel:** decides scope, arbitrates disagreements, owns the product.
+
+### SQL track build sequence, agreed 6 September 2026
+
+| # | Step | Owner |
+|---|---|---|
+| 1 | Approve the direction | Manuel. Done, 6 September |
+| 2 | Update the mockup and BRIEF.md to draft 5 | Claude. Done, 6 September, including the review corrections |
+| 3 | Isolated `sql.js` technical proof | Codex. Next |
+| 4 | Shared SQL workspace and the GROUP BY reference lesson | Claude |
+| 5 | The other seven lessons | Claude |
+| 6 | Independent review of every grading edge case | Codex |
+| 7 | One preview deployment | Codex |
+| 8 | One production deployment, after Manuel approves | Codex |
+
+**Step 3 gates step 4.** No lesson work starts until the engine is proven in isolation. What the
+proof has to establish, at minimum:
+
+- `sql.js` loads and runs under `output: "export"` on Next 16.3.4, with no server
+- `AGENTS.md` applies here: read the guides in `node_modules/next/dist/docs/` rather than assuming
+  behaviour from earlier Next versions
+- The wasm loads only on `/sql/*` and never on `/formulas/*` or `/`
+- The same engine runs under `tsx` in Node so the validator is real
+- Cloudflare Pages serves the `.wasm` with a correct content type
+- The real transfer size, measured rather than estimated
+
+Two questions the brief deliberately leaves to the proof, because they are implementation
+findings rather than contract decisions:
+
+- **How to reliably identify a read-only single statement.** A text-prefix check is not
+  sufficient. Report the smallest dependable method
+- **How to detect `mustUse` clauses as SQL tokens** outside comments and quoted strings
+- Whether SQLite already normalizes internal whitespace in computed column names, which would
+  make that part of the normalization rule redundant
+
+If any of those fail, the track stops and comes back to Manuel before anyone writes a lesson.
+
+**Two deployments total.** One preview near the end, one production release after approval.
 
 ## 11. Copy rules
 
@@ -470,9 +915,32 @@ keyboard access.
 | A dependable MVP, validator green, all routes built | Several focused days, not hours |
 | Content that is genuinely good | Longer, and never really finished |
 
+### SQL track
+
+| Milestone | Estimate |
+|---|---|
+| Codex's isolated `sql.js` proof | Half a day. Gates everything after it |
+| Shared lesson-shell refactor and SQL workspace | **Two to three focused days** |
+| GROUP BY as the tested reference lesson | Half a day |
+| The other seven lessons | Several focused days |
+| Content that is genuinely good | Longer, same honest answer as Excel |
+
+**Revised in review, and this is the second time this mistake has been caught.** The earlier
+figure of one day costed only the new SQL parts: engine wrapper, editor, tables panel, result
+comparison, validator extension. It ignored that `LessonView`, the sidebar, progress totals, the
+lesson cards, next-lesson logic and the cheat sheet all currently assume Excel. Those have to be
+made track-aware before a single SQL lesson can render. That refactor is the larger half of the
+work and it was missing from the estimate entirely.
+
+The workspace plus GROUP BY plays the role XLOOKUP played for Excel. It is the version everything
+else is copied from, so it has to be the good one: mobile, dark mode, error states, keyboard
+access.
+
 ## 13. Definition of done
 
 Claude does not report completion until all of these are true:
+
+**Excel track. Met as of the eighteen-lesson expansion.**
 
 - All eighteen lessons load, each with exactly three real exercises. No placeholders anywhere
 - All fifty-four exercises plus the eighteen Build targets pass the validator, including negative cases
@@ -482,6 +950,19 @@ Claude does not report completion until all of these are true:
 - Every page works at phone width
 - Keyboard alone can complete a lesson
 - The README explains setup, validation, testing and build
+
+**SQL track. Not met. Nothing built.**
+
+- All eight lessons load, each with exactly three real exercises in the 5.13 order. No placeholders
+- All twenty-four exercises plus the eight Build targets pass the validator, including every `rejects` case
+- The validator runs the real `sql.js` engine, not a stand-in
+- Run query and Check answer behave as 5.12 describes, and a syntax error never counts as an attempt
+- `orderMatters` is correct on every exercise, verified both ways: a reordered correct answer
+  passes where ordering is not taught, and fails where it is
+- The wasm loads only on `/sql/*`. `/` and `/formulas/*` do not fetch it, verified in the network panel
+- The production build still writes a self-contained `out/` with no server dependency
+- Both cheat sheets generate from lesson data
+- Everything in the Excel list above still holds, on both tracks
 
 If a requirement cannot be met, it is stated plainly in the report. Scope is never quietly
 reduced.
