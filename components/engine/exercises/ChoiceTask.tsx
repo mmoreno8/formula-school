@@ -12,11 +12,10 @@ interface Props {
   /** The sheet the prompt and the answers refer to. */
   sheet: Sheet;
   gridCaption: string;
-  solved: boolean;
   onSolved: () => void;
 }
 
-export function ChoiceTask({ exercise, sheet, gridCaption, solved, onSolved }: Props) {
+export function ChoiceTask({ exercise, sheet, gridCaption, onSolved }: Props) {
   const attempts = useAttempts();
   const [picked, setPicked] = useState<number | null>(null);
   const [wrongPicks, setWrongPicks] = useState<number[]>([]);
@@ -25,7 +24,7 @@ export function ChoiceTask({ exercise, sheet, gridCaption, solved, onSolved }: P
     if (attempts.stage === "correct") onSolved();
   }, [attempts.stage, onSolved]);
 
-  const done = attempts.stage === "correct" || solved;
+  const done = attempts.stage === "correct";
 
   function choose(i: number) {
     if (done) return;

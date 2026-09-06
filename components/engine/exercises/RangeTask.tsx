@@ -17,11 +17,10 @@ import { Button } from "@/components/ui/Button";
 interface Props {
   exercise: RangeExercise;
   sheet: Sheet;
-  solved: boolean;
   onSolved: () => void;
 }
 
-export function RangeTask({ exercise, sheet, solved, onSolved }: Props) {
+export function RangeTask({ exercise, sheet, onSolved }: Props) {
   const attempts = useAttempts();
   const [anchor, setAnchor] = useState<CellAddr | null>(null);
   const [selection, setSelection] = useState<RangeAddr | null>(null);
@@ -31,7 +30,7 @@ export function RangeTask({ exercise, sheet, solved, onSolved }: Props) {
     if (attempts.stage === "correct") onSolved();
   }, [attempts.stage, onSolved]);
 
-  const done = attempts.stage === "correct" || solved;
+  const done = attempts.stage === "correct";
   const target = parseRange(exercise.correctRange, sheet.rows);
   const selectionText = selection ? formatRange(selection) : null;
 

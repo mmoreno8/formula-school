@@ -12,7 +12,6 @@ interface Props {
   /** The sheet the prompt and the answers refer to. */
   sheet: Sheet;
   gridCaption: string;
-  solved: boolean;
   onSolved: () => void;
 }
 
@@ -40,7 +39,7 @@ function splitTemplate(template: string, count: number): string[] {
   return parts;
 }
 
-export function GapsTask({ exercise, sheet, gridCaption, solved, onSolved }: Props) {
+export function GapsTask({ exercise, sheet, gridCaption, onSolved }: Props) {
   const attempts = useAttempts();
   const [answers, setAnswers] = useState<string[]>(() =>
     exercise.gaps.map(() => ""),
@@ -56,7 +55,7 @@ export function GapsTask({ exercise, sheet, gridCaption, solved, onSolved }: Pro
     [exercise.template, exercise.gaps.length],
   );
 
-  const done = attempts.stage === "correct" || solved;
+  const done = attempts.stage === "correct";
 
   function check() {
     if (answers.some((a) => a.trim() === "")) {

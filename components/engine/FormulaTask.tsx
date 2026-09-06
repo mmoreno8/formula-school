@@ -25,7 +25,6 @@ interface Props {
   prompt: string;
   spec: FormulaSpec;
   fallbackFn?: string;
-  solved: boolean;
   onSolved: () => void;
   gridCaption: string;
 }
@@ -38,7 +37,6 @@ export function FormulaTask({
   prompt,
   spec,
   fallbackFn,
-  solved,
   onSolved,
   gridCaption,
 }: Props) {
@@ -62,7 +60,9 @@ export function FormulaTask({
     }
   }
 
-  const done = attempts.stage === "correct" || solved;
+  // Persisted completion belongs to the progress badge, not the editor.
+  // A learner returning to a completed step must still be able to practise it.
+  const done = attempts.stage === "correct";
 
   return (
     <div>

@@ -80,7 +80,6 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
             exercise={exercise}
             sheet={sheet}
             gridCaption={`Sheet for ${lesson.name}, exercise ${index + 1}`}
-            solved={solved}
             onSolved={onSolved}
           />
         )}
@@ -89,7 +88,6 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
             exercise={exercise}
             sheet={sheet}
             gridCaption={`Sheet for ${lesson.name}, exercise ${index + 1}`}
-            solved={solved}
             onSolved={onSolved}
           />
         )}
@@ -97,7 +95,6 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
           <RangeTask
             exercise={exercise}
             sheet={sheet}
-            solved={solved}
             onSolved={onSolved}
           />
         )}
@@ -108,7 +105,6 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
             prompt={exercise.prompt}
             spec={exercise}
             fallbackFn={exercise.mustUse[0]}
-            solved={solved}
             onSolved={onSolved}
             gridCaption={`Sheet for ${lesson.name}, exercise ${index + 1}`}
           />
@@ -190,7 +186,6 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
               prompt={lesson.build.target}
               spec={lesson.build}
               fallbackFn={lesson.signatures[0]?.fn}
-              solved={state.built}
               onSolved={onBuilt}
               gridCaption={`Sheet for ${lesson.name}`}
             />
