@@ -62,6 +62,7 @@ export const count: ExcelLesson = {
     problem:
       'Someone asks how many orders have been priced. Real sheets are messy: one amount says "pending" and another was never filled in. COUNT and COUNTA give different answers here, and the difference is the answer to a different question.',
   },
+  worked: "=COUNT(A2:A10)",
   build: {
     target:
       "Count how many orders have an actual number in the amount column. Watch what COUNT does with the untidy rows.",
@@ -75,21 +76,6 @@ export const count: ExcelLesson = {
     rejects: ["=7", "=COUNTA(C2:C10)"],
   },
   exercises: [
-    {
-      id: "count-1",
-      type: "formula",
-      prompt:
-        "Now count how many of those cells have anything in them at all, priced or not.",
-      expected: 8,
-      mustUse: ["COUNTA"],
-      canonical: "=COUNTA(C2:C10)",
-      rejects: ["=8", "=COUNT(C2:C10)"],
-      hint: "There is a second function for this. The A on the end stands for all.",
-      hint2:
-        'COUNTA takes the same range, C2 to C10, and counts every cell that is not empty, including the one that says "pending".',
-      explanation:
-        "Eight. COUNTA counts the text cell because something is in it. Only the truly empty cell is skipped.",
-    },
     {
       id: "count-2",
       type: "choice",
@@ -111,6 +97,21 @@ export const count: ExcelLesson = {
         'C4 holds the word "pending" and C6 is empty. Work out which of those two functions would count which.',
       explanation:
         "COUNT means how many numbers. COUNTA means how many filled cells. The gap between them is usually the text somebody typed into a number column.",
+    },
+    {
+      id: "count-1",
+      type: "formula",
+      prompt:
+        "Now count how many of those cells have anything in them at all, priced or not.",
+      expected: 8,
+      mustUse: ["COUNTA"],
+      canonical: "=COUNTA(C2:C10)",
+      rejects: ["=8", "=COUNT(C2:C10)"],
+      hint: "There is a second function for this. The A on the end stands for all.",
+      hint2:
+        'COUNTA takes the same range, C2 to C10, and counts every cell that is not empty, including the one that says "pending".',
+      explanation:
+        "Eight. COUNTA counts the text cell because something is in it. Only the truly empty cell is skipped.",
     },
     {
       id: "count-3",

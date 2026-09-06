@@ -29,6 +29,7 @@ export const indexMatch: ExcelLesson = {
     problem:
       "A legacy workbook needs a lookup that separates finding the row from returning the answer. MATCH finds a position. INDEX uses that position to return a value from another range.",
   },
+  worked: "=INDEX(B2:B7, MATCH(F1, A2:A7, 0))",
   build: {
     target: "Use MATCH to find the SKU in F1, then INDEX to return its margin from column C.",
     expected: 47.5,

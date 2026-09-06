@@ -66,6 +66,7 @@ export const countifs: ExcelLesson = {
     problem:
       "One condition was enough until the question got sharper. Now it is how many Otago orders came in during January. COUNTIFS takes as many range and condition pairs as you need, and a row is only counted when every one of them holds.",
   },
+  worked: "=COUNTIFS(C2:C9, \"Otago\", E2:E9, \"Feb\")",
   build: {
     target: "Count the orders that came from Otago in January.",
     expected: 2,

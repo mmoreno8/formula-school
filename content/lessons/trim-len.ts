@@ -28,6 +28,7 @@ export const trimLen: ExcelLesson = {
     problem:
       "A customer export contains leading spaces, trailing spaces and doubled spaces between words. TRIM cleans those gaps. LEN counts the characters that remain, including intentional spaces inside the text.",
   },
+  worked: "=LEN(B2)",
   build: {
     target: "Clean the imported customer name in B2.",
     expected: "Kea Ltd",

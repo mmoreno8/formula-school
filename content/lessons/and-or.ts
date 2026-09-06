@@ -28,6 +28,7 @@ export const andOr: ExcelLesson = {
     problem:
       "A hiring manager approves candidates only when they clear the test and submit a portfolio. Other reviews begin when either the risk is high or the score is low. AND handles every condition; OR handles any condition.",
   },
+  worked: "=IF(OR(B4>=80, C4=\"Yes\"), \"Approve\", \"Hold\")",
   build: {
     target: 'For Amelia in row 2, return "Approve" when the score is at least 80 and the portfolio says "Yes". Return "Hold" otherwise.',
     expected: "Approve",
@@ -36,7 +37,14 @@ export const andOr: ExcelLesson = {
     hint: "Put both conditions inside a function that becomes true only when both pass.",
     hint2: 'AND needs B2>=80 and C2="Yes". Use that result as the test inside IF.',
     explanation: "Amelia meets both conditions, so AND is true and IF returns Approve.",
-    rejects: ['=IF(B2>=80, "Approve", "Hold")', '=IF(OR(B2>=80, C2="Yes"), "Approve", "Hold")', '="Approve"'],
+    rejects: [
+      '=IF(B2>=80, "Approve", "Hold")',
+      '=IF(OR(B2>=80, C2="Yes"), "Approve", "Hold")',
+      '="Approve"',
+      // Both sides constant, so AND is true for everyone.
+      '=IF(AND(1,1), "Approve", "Hold")',
+      '=IF(TRUE, "Approve", "Hold")',
+    ],
   },
   exercises: [
     {
@@ -79,7 +87,14 @@ export const andOr: ExcelLesson = {
       expected: "Escalate",
       mustUse: ["IF", "OR"],
       canonical: '=IF(OR(D7="High", B7<60), "Escalate", "Standard")',
-      rejects: ['="Escalate"', '=IF(AND(D7="High",B7<60),"Escalate","Standard")', '=IF(B7<60,"Escalate","Standard")'],
+      rejects: [
+        '="Escalate"',
+        '=IF(AND(D7="High",B7<60),"Escalate","Standard")',
+        '=IF(B7<60,"Escalate","Standard")',
+        // Constant conditions, so OR is true whatever the row says.
+        '=IF(OR(1,0),"Escalate","Standard")',
+        '=IF(TRUE,"Escalate","Standard")',
+      ],
       hint: "Only one of the two conditions has to be true.",
       hint2: 'Put D7="High" and B7<60 inside OR, then use OR as the IF test.',
       explanation: "Noah's high risk is enough for OR to return true, even though his score is not below 60.",

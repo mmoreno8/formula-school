@@ -57,6 +57,7 @@ export const ifLesson: ExcelLesson = {
     problem:
       "Finance wants anything over a thousand dollars flagged for a second look. You could read down the column and type the flags yourself. IF writes the rule down once, and the rule keeps applying after you have gone home.",
   },
+  worked: "=IF(D5 > 1000, \"Review\", \"Fine\")",
   build: {
     target:
       'Look at order 1042 in row 2. Return "Review" when its amount is over 1000, and "Fine" when it is not.',
@@ -68,25 +69,24 @@ export const ifLesson: ExcelLesson = {
       'The check is D2 > 1000. Both answers are text, so both need quotes: "Review" and "Fine".',
     explanation:
       "1250 is over 1000, so the test is true and you get the first of the two answers. Swap the two answers around and the rule reverses.",
-    rejects: ['="Review"'],
+    rejects: [
+      '="Review"',
+      // A test that is not about the amount at all. 1042 is not zero, so it
+      // is always true, and this returns "Review" for every order in the
+      // table. It lands on the right answer for row 2 by luck.
+      '=IF(A2, "Review", "Fine")',
+      // Same mistake on the right column: any amount that is not zero is
+      // true, so the thousand dollar rule never happens.
+      '=IF(D2, "Review", "Fine")',
+      '=IF(1, "Review", "Fine")',
+      '=IF(TRUE, "Review", "Fine")',
+      // Right answer, wrong rule: row 2 is in Otago and over a thousand.
+      '=IF(C2 = "Otago", "Review", "Fine")',
+      // The two answers the wrong way round.
+      '=IF(D2 > 1000, "Fine", "Review")',
+    ],
   },
   exercises: [
-    {
-      id: "if-1",
-      type: "gaps",
-      prompt:
-        "Fill the gaps so this checks order 1045 in row 5 against the same thousand dollar rule.",
-      template: '=IF({0} > {1}, "Review", "Fine")',
-      gaps: [
-        { accept: ["D5", "$D$5"], tint: "test", placeholder: "cell" },
-        { accept: ["1000"], tint: "test", placeholder: "limit" },
-      ],
-      hint: "The first gap is the cell you are checking. The second is the number you are checking it against.",
-      hint2:
-        "Order 1045 sits in row 5, and its amount is in column D. The limit is a thousand.",
-      explanation:
-        'That order is 560, so the test is false and the formula returns "Fine". Same rule, different row.',
-    },
     {
       id: "if-2",
       type: "choice",
@@ -111,6 +111,22 @@ export const ifLesson: ExcelLesson = {
         "Getting the right answer on one row is not the same as having the right rule. Check the rule against a row where the answer should flip.",
     },
     {
+      id: "if-1",
+      type: "gaps",
+      prompt:
+        "Fill the gaps so this checks order 1045 in row 5 against the same thousand dollar rule.",
+      template: '=IF({0} > {1}, "Review", "Fine")',
+      gaps: [
+        { accept: ["D5", "$D$5"], tint: "test", placeholder: "cell" },
+        { accept: ["1000"], tint: "test", placeholder: "limit" },
+      ],
+      hint: "The first gap is the cell you are checking. The second is the number you are checking it against.",
+      hint2:
+        "Order 1045 sits in row 5, and its amount is in column D. The limit is a thousand.",
+      explanation:
+        'That order is 560, so the test is false and the formula returns "Fine". Same rule, different row.',
+    },
+    {
       id: "if-3",
       type: "formula",
       prompt:
@@ -118,7 +134,15 @@ export const ifLesson: ExcelLesson = {
       expected: 178,
       mustUse: ["IF"],
       canonical: "=IF(D6 > 1500, D6 * 0.1, 0)",
-      rejects: ["=178", "=D6 * 0.1"],
+      rejects: [
+        "=178",
+        "=D6 * 0.1",
+        // Always true, so every order earns the commission.
+        "=IF(A2, 178, 0)",
+        "=IF(1, 178, 0)",
+        // Never true, and never zero either.
+        "=IF(D6 > 1500, 178, 0)",
+      ],
       hint: "The two answers do not have to be text. They can be numbers, or sums of their own.",
       hint2:
         "The check is D6 > 1500. When it is true you want ten percent of D6, and when it is false you want 0.",

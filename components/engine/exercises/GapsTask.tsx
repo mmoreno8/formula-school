@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { GapsExercise } from "@/lib/schema";
+import type { GapsExercise, Sheet } from "@/lib/schema";
 import { Feedback } from "@/components/engine/Feedback";
+import { Grid } from "@/components/engine/Grid";
 import { useAttempts } from "@/components/engine/useAttempts";
 import { Button } from "@/components/ui/Button";
 
 interface Props {
   exercise: GapsExercise;
+  /** The sheet the prompt and the answers refer to. */
+  sheet: Sheet;
+  gridCaption: string;
   solved: boolean;
   onSolved: () => void;
 }
@@ -36,7 +40,7 @@ function splitTemplate(template: string, count: number): string[] {
   return parts;
 }
 
-export function GapsTask({ exercise, solved, onSolved }: Props) {
+export function GapsTask({ exercise, sheet, gridCaption, solved, onSolved }: Props) {
   const attempts = useAttempts();
   const [answers, setAnswers] = useState<string[]>(() =>
     exercise.gaps.map(() => ""),
@@ -78,6 +82,12 @@ export function GapsTask({ exercise, solved, onSolved }: Props) {
       <p className="mb-4 max-w-[62ch] text-[15px] leading-relaxed">
         {exercise.prompt}
       </p>
+
+      {/* The task names cells, so the cells have to be on screen. Without this
+          a prompt about D5 asks the learner to take 560 on trust. */}
+      <div className="mb-4">
+        <Grid sheet={sheet} caption={gridCaption} />
+      </div>
 
       <div className="flex flex-wrap items-center gap-y-2 font-mono text-sm leading-loose">
         {parts.map((part, i) => (

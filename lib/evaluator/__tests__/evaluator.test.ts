@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Sheet } from "@/lib/schema";
-import { evaluate, checkFormula, formatValue } from "@/lib/evaluator";
+import {
+  cellsRead,
+  checkFormula,
+  evaluate,
+  formatValue,
+  variantSheets,
+} from "@/lib/evaluator";
 import { isError } from "@/lib/evaluator/types";
 
 /** Orders sheet with the traps the content relies on:
@@ -216,5 +222,218 @@ describe("formatValue", () => {
     expect(formatValue(1245.006)).toBe("1,245.01");
     expect(formatValue("Otago")).toBe("Otago");
     expect(formatValue(null)).toBe("");
+  });
+});
+
+/* ------------------ answers that only look right on one row ---------------- */
+
+describe("behaving like the model answer, not just landing on it", () => {
+  const sheet: Sheet = {
+    cols: ["A", "B", "C", "D"],
+    rows: 5,
+    cells: {
+      A1: "Order", B1: "Customer", C1: "Region", D1: "Amount",
+      A2: 1042, B2: "Northwind", C2: "Otago", D2: 1250,
+      A3: 1043, B3: "Kea Ltd", C3: "Waikato", D3: 840,
+      A4: 1044, B4: "Halcyon", C4: "Otago", D4: 2110,
+      A5: 1045, B5: "Brightsmith", C5: "Auckland", D5: 560,
+    },
+  };
+
+  const spec = {
+    expected: "Review",
+    mustUse: ["IF"],
+    canonical: '=IF(D2 > 1000, "Review", "Fine")',
+  };
+
+  const verdict = (formula: string) => {
+    const r = checkFormula(formula, sheet, spec);
+    return "status" in r ? r.status : "syntax";
+  };
+
+  it("takes the model answer", () => {
+    expect(verdict('=IF(D2 > 1000, "Review", "Fine")')).toBe("correct");
+  });
+
+  it("takes an equivalent rule written differently", () => {
+    expect(verdict('=IF(1000 < D2, "Review", "Fine")')).toBe("correct");
+    expect(verdict('=IF(D2 >= 1001, "Review", "Fine")')).toBe("correct");
+    expect(verdict('=IF($D$2 > 1000, "Review", "Fine")')).toBe("correct");
+  });
+
+  it("does not care about the capitals in the answer text", () => {
+    expect(verdict('=IF(D2 > 1000, "review", "fine")')).toBe("correct");
+  });
+
+  /**
+   * The reported bug. Every one of these returns "Review" for row 2, and none
+   * of them is a rule about a thousand dollars. The old check compared the
+   * value for that one row and let them all through.
+   */
+  it("refuses a test that never looks at the amount", () => {
+    expect(verdict('=IF(A2, "Review", "Fine")')).toBe("wrong");
+    expect(verdict('=IF(1, "Review", "Fine")')).toBe("wrong");
+    expect(verdict('=IF(TRUE, "Review", "Fine")')).toBe("wrong");
+  });
+
+  it("refuses a test on the right cell that is still the wrong rule", () => {
+    // 1250 is not zero, so this returns "Review" for every amount there is.
+    expect(verdict('=IF(D2, "Review", "Fine")')).toBe("wrong");
+  });
+
+  it("refuses a rule that happens to agree on this row", () => {
+    // Row 2 is in Otago and over a thousand, so this looks right once.
+    expect(verdict('=IF(C2 = "Otago", "Review", "Fine")')).toBe("wrong");
+  });
+
+  it("still refuses the answers swapped round", () => {
+    expect(verdict('=IF(D2 > 1000, "Fine", "Review")')).toBe("wrong");
+  });
+});
+
+describe("reading which cells a formula depends on", () => {
+  const sheet: Sheet = {
+    cols: ["A", "B"],
+    rows: 4,
+    cells: { A1: "h", A2: 1, A3: 2, A4: 3, B2: 9 },
+  };
+
+  it("finds a plain reference", () => {
+    expect([...cellsRead("=A2 + 1", sheet)]).toEqual(["A2"]);
+  });
+
+  it("expands a range", () => {
+    expect([...cellsRead("=SUM(A2:A4)", sheet)].sort()).toEqual(["A2", "A3", "A4"]);
+  });
+
+  it("ignores the dollar signs", () => {
+    expect([...cellsRead("=$A$2", sheet)]).toEqual(["A2"]);
+  });
+
+  it("finds nothing in a formula that reads nothing", () => {
+    expect(cellsRead('=IF(1, "x", "y")', sheet).size).toBe(0);
+  });
+
+  it("builds a variant per other value in the column, never touching the header", () => {
+    const variants = variantSheets(sheet, new Set(["A2"]));
+    expect(variants.map((v) => v.cells.A2)).toEqual([2, 3]);
+    expect(variants.every((v) => v.cells.A1 === "h")).toBe(true);
+  });
+});
+
+/* ---------------- dropping cells out of a range and patching the total ------ */
+
+/**
+ * The second reported hole. `=SUM(D2:D8)+670` adds the first seven amounts and
+ * types the eighth in by hand, so it is not a rule about the column at all: it
+ * is the right total for this sheet and the wrong answer for every other one.
+ *
+ * It used to pass because variant generation spent a flat budget of twelve
+ * starting at D2, so the run was over before D9 was ever changed and the
+ * hardcoded 670 was never contradicted.
+ */
+describe("a range with cells dropped and the total patched by hand", () => {
+  /** The SUM lesson's own sheet. D8 is 1420, D9 is 670, the total is 9560. */
+  const sheet: Sheet = {
+    cols: ["A", "B", "C", "D"],
+    rows: 9,
+    cells: {
+      A1: "Order", B1: "Customer", C1: "Region", D1: "Amount",
+      A2: 1042, B2: "Northwind", C2: "Otago", D2: 1250,
+      A3: 1043, B3: "Kea Ltd", C3: "Waikato", D3: 840,
+      A4: 1044, B4: "Halcyon", C4: "Otago", D4: 2110,
+      A5: 1045, B5: "Brightsmith", C5: "Auckland", D5: 560,
+      A6: 1046, B6: "Tuatara", C6: "Waikato", D6: 1780,
+      A7: 1047, B7: "Fernway", C7: "Otago", D7: 930,
+      A8: 1048, B8: "Pounamu", C8: "Nelson", D8: 1420,
+      A9: 1049, B9: "Rimu Co", C9: "Otago", D9: 670,
+    },
+  };
+
+  const spec = { expected: 9560, mustUse: ["SUM"], canonical: "=SUM(D2:D9)" };
+  const verdict = (formula: string) => {
+    const r = checkFormula(formula, sheet, spec);
+    return "status" in r ? r.status : "syntax";
+  };
+
+  it("refuses a range that stops early with the missing amount typed in", () => {
+    expect(verdict("=SUM(D2:D8)+670")).toBe("wrong");
+  });
+
+  it("refuses it however many cells are left out", () => {
+    expect(verdict("=SUM(D2:D7)+2090")).toBe("wrong");
+    expect(verdict("=SUM(D3:D9)+1250")).toBe("wrong");
+  });
+
+  it("still takes the model answer and the ways of writing it", () => {
+    expect(verdict("=SUM(D2:D9)")).toBe("correct");
+    expect(verdict("=SUM(D:D)")).toBe("correct");
+    expect(verdict("=SUM($D$2:$D$9)")).toBe("correct");
+  });
+
+  it("takes the same total written out with plus signs", () => {
+    // The lesson itself requires SUM, so this one fails on mustUse there.
+    // What matters here is that the behavioural check does not mistake it for
+    // a different rule: it reads every cell and moves with all of them.
+    const r = checkFormula("=D2+D3+D4+D5+D6+D7+D8+D9", sheet, {
+      expected: 9560,
+      mustUse: [],
+      canonical: "=SUM(D2:D9)",
+    });
+    expect("status" in r ? r.status : "syntax").toBe("correct");
+  });
+
+  it("changes the last cell of the range, not only the first few", () => {
+    const cells = cellsRead("=SUM(D2:D9)", sheet);
+    const variants = variantSheets(sheet, cells);
+    const moved = (ref: string) =>
+      variants.some((v) => v.cells[ref] !== sheet.cells[ref]);
+
+    expect(moved("D9")).toBe(true);
+    expect(moved("D8")).toBe(true);
+    for (const ref of cells) expect(moved(ref)).toBe(true);
+  });
+});
+
+describe("ranges longer than the variant budget", () => {
+  /** Forty data rows, every amount distinct, so no cell runs out of swaps. */
+  const sheet: Sheet = {
+    cols: ["A"],
+    rows: 41,
+    cells: (() => {
+      const cells: Record<string, string | number> = { A1: "Amount" };
+      for (let row = 2; row <= 41; row++) cells[`A${row}`] = row * 10;
+      return cells;
+    })(),
+  };
+
+  /** 20 + 30 + ... + 410. */
+  const total = (41 * 42) / 2 * 10 - 10;
+
+  const spec = { expected: total, mustUse: ["SUM"], canonical: "=SUM(A2:A41)" };
+  const verdict = (formula: string) => {
+    const r = checkFormula(formula, sheet, spec);
+    return "status" in r ? r.status : "syntax";
+  };
+
+  it("gives every cell in the range a variant, however long the range is", () => {
+    const cells = cellsRead("=SUM(A2:A41)", sheet);
+    expect(cells.size).toBe(40);
+
+    const variants = variantSheets(sheet, cells);
+    for (const ref of cells) {
+      expect(variants.some((v) => v.cells[ref] !== sheet.cells[ref])).toBe(true);
+    }
+  });
+
+  it("stays linear in the size of the range, not a product of it", () => {
+    const cells = cellsRead("=SUM(A2:A41)", sheet);
+    // One per cell, plus the fixed depth allowance. Nothing combinatorial.
+    expect(variantSheets(sheet, cells).length).toBe(cells.size + 12);
+  });
+
+  it("catches a cell dropped from the far end of a long range", () => {
+    expect(verdict("=SUM(A2:A40)+410")).toBe("wrong");
+    expect(verdict("=SUM(A2:A41)")).toBe("correct");
   });
 });

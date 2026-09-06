@@ -64,6 +64,7 @@ export const xlookup: ExcelLesson = {
     problem:
       "Someone drops an order number on your desk and asks which region it came from. The sheet has 8,000 rows and you are not scrolling through them. XLOOKUP finds the row for you and brings back the value you asked for.",
   },
+  worked: "=XLOOKUP(F1, A2:A9, B2:B9)",
   build: {
     target:
       "The order number you are chasing sits in F1. Write the formula that brings back its region. Click a cell or a column letter instead of typing the reference.",

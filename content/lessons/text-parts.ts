@@ -28,6 +28,7 @@ export const textParts: ExcelLesson = {
     problem:
       "An operations report packs country, office and case number into one code. LEFT takes characters from the beginning, RIGHT takes them from the end, and MID takes a section from the middle.",
   },
+  worked: "=RIGHT(A2, 4)",
   build: {
     target: "Extract the two-letter country code from A2.",
     expected: "NZ",

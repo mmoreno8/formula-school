@@ -59,6 +59,7 @@ export const vlookup: ExcelLesson = {
     problem:
       "VLOOKUP has been in every workplace spreadsheet for twenty years, so you will inherit files full of it whether you like it or not. It takes a whole table and a column number, counted from the left edge of that table, which is where most of its problems come from.",
   },
+  worked: "=VLOOKUP(F1, A2:D9, 2, FALSE)",
   build: {
     target:
       "The order number you want sits in F1. Use VLOOKUP to bring back its region.",

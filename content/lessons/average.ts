@@ -66,6 +66,7 @@ export const average: ExcelLesson = {
     problem:
       "The total tells you how much came in. It does not tell you what a normal order looks like. Someone asks what a typical order is worth, and AVERAGE answers that in one step instead of two.",
   },
+  worked: "=AVERAGE(E2:E9)",
   build: {
     target: "Work out the average amount across all eight orders.",
     expected: 1195,
@@ -79,23 +80,6 @@ export const average: ExcelLesson = {
     rejects: ["=1195", "=SUM(D2:D9)/8"],
   },
   exercises: [
-    {
-      id: "average-1",
-      type: "gaps",
-      prompt: "Fill the range so this returns the average amount.",
-      template: "=AVERAGE({0})",
-      gaps: [
-        {
-          accept: ["D2:D9", "D:D", "$D$2:$D$9"],
-          tint: "search",
-          placeholder: "range",
-        },
-      ],
-      hint: "Amounts, data rows only.",
-      hint2: "Column D, from row 2 down to row 9.",
-      explanation:
-        "One range is all AVERAGE needs. It handles the counting and the dividing itself.",
-    },
     {
       id: "average-2",
       type: "choice",
@@ -118,6 +102,23 @@ export const average: ExcelLesson = {
         "Count the rows of data: there are eight. Then look at which option never has to know that.",
       explanation:
         "AVERAGE works out the count itself, so nothing needs updating when the sheet grows.",
+    },
+    {
+      id: "average-1",
+      type: "gaps",
+      prompt: "Fill the range so this returns the average amount.",
+      template: "=AVERAGE({0})",
+      gaps: [
+        {
+          accept: ["D2:D9", "D:D", "$D$2:$D$9"],
+          tint: "search",
+          placeholder: "range",
+        },
+      ],
+      hint: "Amounts, data rows only.",
+      hint2: "Column D, from row 2 down to row 9.",
+      explanation:
+        "One range is all AVERAGE needs. It handles the counting and the dividing itself.",
     },
     {
       id: "average-3",

@@ -57,6 +57,7 @@ export const sumif: ExcelLesson = {
     problem:
       "Counting Otago orders was useful. What the regional manager actually wants is how much money came from Otago. SUMIF checks one column and adds up a different one, which is the part people get tangled in.",
   },
+  worked: "=SUMIF(C2:C9, \"Waikato\", D2:D9)",
   build: {
     target: "Total the amounts for orders from Otago.",
     expected: 5410,
@@ -70,6 +71,28 @@ export const sumif: ExcelLesson = {
     rejects: ["=5410", "=SUM(D2:D9)"],
   },
   exercises: [
+    {
+      id: "sumif-2",
+      type: "choice",
+      prompt: "Which of these totals every order over 1000?",
+      options: [
+        '=SUMIF(">1000", D2:D9)',
+        '=SUMIF(D2:D9, ">1000")',
+        '=SUMIF(D2:D9, ">1000", C2:C9)',
+        '=COUNTIF(D2:D9, ">1000")',
+      ],
+      correctIndex: 1,
+      optionHints: {
+        0: "Range first, condition second. This has them the wrong way round.",
+        2: "That tests the amounts and then tries to add up the regions, which are words.",
+        3: "That counts how many, not how much.",
+      },
+      hint: "When the column you are testing is also the column you want to add, the third argument is not needed.",
+      hint2:
+        "Leave the third argument off and SUMIF adds up the same range it tested.",
+      explanation:
+        "7,680. Drop the third argument when the test column and the money column are the same one.",
+    },
     {
       id: "sumif-1",
       type: "gaps",
@@ -92,28 +115,6 @@ export const sumif: ExcelLesson = {
         "Regions are column C. Amounts are column D. Both run from row 2 to row 9.",
       explanation:
         "2,620 from Waikato. Test one column, add another, and keep both the same height.",
-    },
-    {
-      id: "sumif-2",
-      type: "choice",
-      prompt: "Which of these totals every order over 1000?",
-      options: [
-        '=SUMIF(">1000", D2:D9)',
-        '=SUMIF(D2:D9, ">1000")',
-        '=SUMIF(D2:D9, ">1000", C2:C9)',
-        '=COUNTIF(D2:D9, ">1000")',
-      ],
-      correctIndex: 1,
-      optionHints: {
-        0: "Range first, condition second. This has them the wrong way round.",
-        2: "That tests the amounts and then tries to add up the regions, which are words.",
-        3: "That counts how many, not how much.",
-      },
-      hint: "When the column you are testing is also the column you want to add, the third argument is not needed.",
-      hint2:
-        "Leave the third argument off and SUMIF adds up the same range it tested.",
-      explanation:
-        "7,680. Drop the third argument when the test column and the money column are the same one.",
     },
     {
       id: "sumif-3",

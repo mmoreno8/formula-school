@@ -59,6 +59,7 @@ export const countif: ExcelLesson = {
     problem:
       "COUNT tells you how many orders there are. Nobody ever wants that on its own. They want how many came from Otago, or how many cleared a thousand dollars. COUNTIF is COUNT with the question attached.",
   },
+  worked: "=COUNTIF(C2:C9, \"Waikato\")",
   build: {
     target: "Count how many orders came from Otago.",
     expected: 4,

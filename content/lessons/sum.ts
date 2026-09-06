@@ -66,6 +66,7 @@ export const sum: ExcelLesson = {
     problem:
       "Your manager wants one number: what did all these orders come to. You could add the cells one at a time with plus signs, and you would get there. SUM does the same job in a way that still works when the sheet grows to 800 rows.",
   },
+  worked: "=SUM(E2:E9)",
   build: {
     target:
       "Add up every amount in column D. Click a column letter to drop the whole range in, rather than typing it.",

@@ -27,6 +27,7 @@ export const roundLesson: ExcelLesson = {
     problem:
       "A buyer needs tax-inclusive prices that stop at cents. The source prices carry extra decimals, so ROUND turns each calculation into a usable currency value.",
   },
+  worked: "=ROUND(B3*C3, 2)",
   build: {
     target: "Multiply the net price in B2 by the tax factor in C2, then round the result to two decimal places.",
     expected: 76.36,
@@ -38,20 +39,6 @@ export const roundLesson: ExcelLesson = {
     rejects: ["=B2*C2", "=ROUND(B2*C2, 1)", "=76.36"],
   },
   exercises: [
-    {
-      id: "round-gaps",
-      type: "gaps",
-      prompt: "Fill the gaps to round the tax-inclusive dock price to two decimal places.",
-      template: "=ROUND({0}*{1}, {2})",
-      gaps: [
-        { accept: ["B3"], tint: "lookup", placeholder: "price" },
-        { accept: ["C3"], tint: "lookup", placeholder: "tax" },
-        { accept: ["2"], tint: "plain", placeholder: "places" },
-      ],
-      hint: "The calculation uses the price and tax factor from the same row.",
-      hint2: "Use B3 multiplied by C3, and keep 2 decimal places.",
-      explanation: "The calculation stays inside ROUND, and the final argument controls the displayed precision.",
-    },
     {
       id: "round-choice",
       type: "choice",
@@ -66,6 +53,20 @@ export const roundLesson: ExcelLesson = {
       hint: "Whole numbers have no decimal places.",
       hint2: "Use B4 as the number and 0 as num_digits.",
       explanation: "ROUND with zero decimal places turns 1288.74 into 1289.",
+    },
+    {
+      id: "round-gaps",
+      type: "gaps",
+      prompt: "Fill the gaps to round the tax-inclusive dock price to two decimal places.",
+      template: "=ROUND({0}*{1}, {2})",
+      gaps: [
+        { accept: ["B3"], tint: "lookup", placeholder: "price" },
+        { accept: ["C3"], tint: "lookup", placeholder: "tax" },
+        { accept: ["2"], tint: "plain", placeholder: "places" },
+      ],
+      hint: "The calculation uses the price and tax factor from the same row.",
+      hint2: "Use B3 multiplied by C3, and keep 2 decimal places.",
+      explanation: "The calculation stays inside ROUND, and the final argument controls the displayed precision.",
     },
     {
       id: "round-formula",

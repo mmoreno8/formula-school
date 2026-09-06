@@ -179,6 +179,33 @@ export function parse(source: string): Node {
 }
 
 /** Every function name used anywhere in the tree, uppercased. */
+/**
+ * Every cell and range the formula reads, as written. Ranges come back whole
+ * ("D2:D9"); the caller expands them, because only it knows the sheet.
+ *
+ * Used to work out which cells an answer actually depends on. A formula that
+ * reads none of them is not answering the question, whatever it returns.
+ */
+export function refsUsed(node: Node, into: Set<string> = new Set()): Set<string> {
+  switch (node.t) {
+    case "ref":
+    case "range":
+      into.add(node.a1);
+      break;
+    case "call":
+      node.args.forEach((a) => refsUsed(a, into));
+      break;
+    case "bin":
+      refsUsed(node.l, into);
+      refsUsed(node.r, into);
+      break;
+    case "un":
+      refsUsed(node.e, into);
+      break;
+  }
+  return into;
+}
+
 export function functionsUsed(node: Node, into: Set<string> = new Set()): Set<string> {
   switch (node.t) {
     case "call":

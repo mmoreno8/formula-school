@@ -66,6 +66,7 @@ export const sumifs: ExcelLesson = {
     problem:
       "This is the one that ends up in every monthly report: how much did Otago bring in during January. SUMIFS looks like SUMIF with more pairs, except for one thing that trips up everybody who learned SUMIF first.",
   },
+  worked: "=SUMIFS(D2:D9, C2:C9, \"Waikato\", E2:E9, \"Jan\")",
   build: {
     target: "Total the amounts for Otago orders placed in January.",
     expected: 2370,
@@ -79,6 +80,28 @@ export const sumifs: ExcelLesson = {
     rejects: ["=2370", '=SUMIF(C2:C9, "Otago", D2:D9)'],
   },
   exercises: [
+    {
+      id: "sumifs-2",
+      type: "choice",
+      prompt: "Which of these totals the February orders worth more than 1000?",
+      options: [
+        '=SUMIF(D2:D9, E2:E9, "Feb", ">1000")',
+        '=SUMIFS(D2:D9, E2:E9, "Feb", ">1000")',
+        '=SUMIFS(D2:D9, E2:E9, "Feb", D2:D9, ">1000")',
+        '=SUMIFS(E2:E9, "Feb", D2:D9, ">1000")',
+      ],
+      correctIndex: 2,
+      optionHints: {
+        0: "SUMIF takes one condition only, and its arguments are in a different order.",
+        1: "The last condition has no range in front of it. Every condition needs its own range.",
+        3: "The first argument has to be the column being added. This starts with the months.",
+      },
+      hint: "Check the first argument of each option. Only one of them starts with the money.",
+      hint2:
+        "A column can appear twice: once as the thing being added, and again as a column being tested.",
+      explanation:
+        "3,530. The amounts appear twice here, as the sum range and as a condition range, which is allowed and often needed.",
+    },
     {
       id: "sumifs-1",
       type: "gaps",
@@ -101,28 +124,6 @@ export const sumifs: ExcelLesson = {
         "Amounts are column D and regions are column C, which is the reverse of the order SUMIF wanted them in.",
       explanation:
         "2,620. Sum range first, then the pairs. Say it out loud a few times and it sticks.",
-    },
-    {
-      id: "sumifs-2",
-      type: "choice",
-      prompt: "Which of these totals the February orders worth more than 1000?",
-      options: [
-        '=SUMIF(D2:D9, E2:E9, "Feb", ">1000")',
-        '=SUMIFS(D2:D9, E2:E9, "Feb", ">1000")',
-        '=SUMIFS(D2:D9, E2:E9, "Feb", D2:D9, ">1000")',
-        '=SUMIFS(E2:E9, "Feb", D2:D9, ">1000")',
-      ],
-      correctIndex: 2,
-      optionHints: {
-        0: "SUMIF takes one condition only, and its arguments are in a different order.",
-        1: "The last condition has no range in front of it. Every condition needs its own range.",
-        3: "The first argument has to be the column being added. This starts with the months.",
-      },
-      hint: "Check the first argument of each option. Only one of them starts with the money.",
-      hint2:
-        "A column can appear twice: once as the thing being added, and again as a column being tested.",
-      explanation:
-        "3,530. The amounts appear twice here, as the sum range and as a condition range, which is allowed and often needed.",
     },
     {
       id: "sumifs-3",

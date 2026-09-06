@@ -235,6 +235,45 @@ function checkExercise(lesson: ExcelLesson, ex: Exercise, seen: Set<string>): vo
   }
 }
 
+/**
+ * The Understand step's worked example.
+ *
+ * It has to run, it has to show something, and it must not be the Build
+ * answer. That last one is the point of the field: an example identical to
+ * the canonical turns the Build step into copying, which is the problem it
+ * was added to solve.
+ */
+function checkWorkedExample(where: string, lesson: ExcelLesson): void {
+  const w = `${where}.worked`;
+  ok();
+  const res = evaluate(lesson.worked, lesson.sheet);
+  if (!res.ok) {
+    fail(w, `worked example does not parse: ${res.message}`);
+    return;
+  }
+  if (res.value === null) {
+    fail(w, "worked example returns nothing, so it demonstrates nothing");
+  }
+
+  ok();
+  const same = (a: string) => a.replace(/\s+/g, "").toUpperCase();
+  if (same(lesson.worked) === same(lesson.build.canonical)) {
+    fail(
+      w,
+      "worked example is the Build answer. Show a different question, or the Build step is copying",
+    );
+  }
+
+  ok();
+  const taught = lesson.signatures.map((sig) => sig.fn.toUpperCase());
+  if (!taught.some((fn) => res.functions.has(fn))) {
+    fail(
+      w,
+      `worked example uses none of the functions this lesson teaches (${taught.join(", ")})`,
+    );
+  }
+}
+
 function checkExcelLesson(
   lesson: ExcelLesson,
   seenIds: Set<string>,
@@ -266,6 +305,7 @@ function checkExcelLesson(
   lesson.takeaways.forEach((t, i) => copyCheck(`${where}.takeaways[${i}]`, t));
 
   checkSheet(`${where}.sheet`, lesson.sheet);
+  checkWorkedExample(where, lesson);
   checkFormulaSpec(`${where}.build`, lesson.build, lesson.sheet);
 
   const seenExercises = new Set<string>();

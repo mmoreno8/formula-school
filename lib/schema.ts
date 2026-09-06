@@ -129,6 +129,15 @@ export interface ExcelLesson {
   signatures: Signature[];
   sheet: Sheet;
   understand: { problem: string };
+  /**
+   * One finished, correct formula shown in Understand, so nobody is asked to
+   * write a formula before they have seen one.
+   *
+   * Deliberately a different question from `build.canonical`, and the
+   * validator refuses a lesson where the two are the same: an example that
+   * gives away the Build answer turns the Build step into copying.
+   */
+  worked: string;
   build: BuildStep;
   /** Exactly three. Enforced by the validator. */
   exercises: Exercise[];

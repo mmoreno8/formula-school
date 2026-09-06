@@ -29,6 +29,7 @@ export const iferror: ExcelLesson = {
     problem:
       "A stock report is shared with people who do not need to decode #N/A. IFERROR tries the calculation and replaces an error with text they can act on.",
   },
+  worked: "=IFERROR(VLOOKUP(F2, A2:C7, 3, FALSE), \"Not listed\")",
   build: {
     target: 'Look up the missing SKU in F1 and return its price. Show "Not listed" if VLOOKUP cannot find it.',
     expected: "Not listed",

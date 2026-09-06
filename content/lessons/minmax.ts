@@ -30,6 +30,7 @@ export const minmax: ExcelLesson = {
     problem:
       "Your finance manager wants the fastest and slowest payment times in the invoice list. MIN finds the low end of a numeric range. MAX finds the high end.",
   },
+  worked: "=MIN(D2:D9)",
   build: {
     target: "Find the longest payment time in column D, excluding the heading.",
     expected: 64,

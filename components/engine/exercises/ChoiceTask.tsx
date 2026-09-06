@@ -1,18 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ChoiceExercise } from "@/lib/schema";
+import type { ChoiceExercise, Sheet } from "@/lib/schema";
 import { Feedback } from "@/components/engine/Feedback";
+import { Grid } from "@/components/engine/Grid";
 import { useAttempts } from "@/components/engine/useAttempts";
 import { Button } from "@/components/ui/Button";
 
 interface Props {
   exercise: ChoiceExercise;
+  /** The sheet the prompt and the answers refer to. */
+  sheet: Sheet;
+  gridCaption: string;
   solved: boolean;
   onSolved: () => void;
 }
 
-export function ChoiceTask({ exercise, solved, onSolved }: Props) {
+export function ChoiceTask({ exercise, sheet, gridCaption, solved, onSolved }: Props) {
   const attempts = useAttempts();
   const [picked, setPicked] = useState<number | null>(null);
   const [wrongPicks, setWrongPicks] = useState<number[]>([]);
@@ -45,6 +49,12 @@ export function ChoiceTask({ exercise, solved, onSolved }: Props) {
         <legend className="mb-3 max-w-[62ch] text-[15px] leading-relaxed">
           {exercise.prompt}
         </legend>
+
+        {/* Every option is a formula about specific cells, so the sheet stays
+            visible while the learner compares them. */}
+        <div className="mb-4">
+          <Grid sheet={sheet} caption={gridCaption} />
+        </div>
         <div className="flex flex-col gap-2">
           {exercise.options.map((option, i) => {
             const isCorrect = i === exercise.correctIndex;

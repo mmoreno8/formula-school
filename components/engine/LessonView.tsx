@@ -19,6 +19,7 @@ import { IconCheck, IconRedo } from "@/components/ui/icons";
 import { FormulaTask } from "@/components/engine/FormulaTask";
 import { Grid } from "@/components/engine/Grid";
 import { SignatureChips } from "@/components/engine/SignatureChips";
+import { WorkedExample } from "@/components/engine/WorkedExample";
 import { ChoiceTask } from "@/components/engine/exercises/ChoiceTask";
 import { GapsTask } from "@/components/engine/exercises/GapsTask";
 import { RangeTask } from "@/components/engine/exercises/RangeTask";
@@ -75,10 +76,22 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
         </div>
 
         {exercise.type === "choice" && (
-          <ChoiceTask exercise={exercise} solved={solved} onSolved={onSolved} />
+          <ChoiceTask
+            exercise={exercise}
+            sheet={sheet}
+            gridCaption={`Sheet for ${lesson.name}, exercise ${index + 1}`}
+            solved={solved}
+            onSolved={onSolved}
+          />
         )}
         {exercise.type === "gaps" && (
-          <GapsTask exercise={exercise} solved={solved} onSolved={onSolved} />
+          <GapsTask
+            exercise={exercise}
+            sheet={sheet}
+            gridCaption={`Sheet for ${lesson.name}, exercise ${index + 1}`}
+            solved={solved}
+            onSolved={onSolved}
+          />
         )}
         {exercise.type === "range" && (
           <RangeTask
@@ -137,6 +150,13 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
                 <SignatureChips signature={sig} />
               </div>
             ))}
+
+            <WorkedExample
+              formula={lesson.worked}
+              sheet={lesson.sheet}
+              signature={lesson.signatures[0]}
+            />
+
             <div className="mt-5">
               <p className="mb-2 text-[11.5px] tracking-wider text-ink-3 uppercase">
                 The sheet you are working with

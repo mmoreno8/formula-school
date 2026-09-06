@@ -28,6 +28,7 @@ export const concat: ExcelLesson = {
     problem:
       "People data arrives with first and last names in separate columns. CONCAT joins those values with any punctuation or spaces the final label needs.",
   },
+  worked: "=CONCAT(B3, \" \", A3)",
   build: {
     target: "Create Priya Singh's full name from B2 and A2, with one space between them.",
     expected: "Priya Singh",
