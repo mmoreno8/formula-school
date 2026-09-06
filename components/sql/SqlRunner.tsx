@@ -41,7 +41,11 @@ interface Props {
   children: (api: RunnerApi) => ReactNode;
   /** False while a gaps exercise still has empty gaps. */
   canRun?: boolean;
-  solved: boolean;
+  /**
+   * Marks the exercise done in stored progress. Deliberately the only thing
+   * this component does with completion: what the learner is told about their
+   * query is decided by the current attempt and nothing else.
+   */
   onSolved: () => void;
   caption: string;
 }
@@ -69,7 +73,6 @@ export function SqlRunner({
   sql,
   children,
   canRun = true,
-  solved,
   onSolved,
   caption,
 }: Props) {
@@ -134,7 +137,13 @@ export function SqlRunner({
 
   const disabled = busy !== null || !canRun;
   const revealed = a.stage === "revealed";
-  const correct = solved || a.stage === "correct";
+  /**
+   * Not `solved || ...`. Stored completion belongs to the Done badge and the
+   * lesson rail; this line decides what is said about the query sitting in the
+   * editor. Reading progress here told a learner returning to a solved step
+   * that a freshly submitted wrong query was correct.
+   */
+  const correct = a.stage === "correct";
 
   return (
     <div className="flex flex-col gap-3">

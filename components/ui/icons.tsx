@@ -80,3 +80,11 @@ export const IconRedo = (p: IconProps) => (
     <path d="M3 4v5h5" />
   </Base>
 );
+
+/** Two side panels either side of a page, for the focus-mode toggle. */
+export const IconPanels = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M8 4v16M16 4v16" />
+  </Base>
+);

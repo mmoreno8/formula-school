@@ -27,7 +27,14 @@ import { textParts } from "./lessons/text-parts";
 import { trimLen } from "./lessons/trim-len";
 import { concat } from "./lessons/concat";
 import { indexMatch } from "./lessons/index-match";
+import { selectWhere } from "./sql/select-where";
+import { orderByLimit } from "./sql/order-by-limit";
+import { distinct } from "./sql/distinct";
+import { aggregates } from "./sql/aggregates";
 import { groupBy } from "./sql/group-by";
+import { innerJoin } from "./sql/inner-join";
+import { caseWhen } from "./sql/case-when";
+import { subqueries } from "./sql/subqueries";
 
 /** The Excel track, in curriculum order. BRIEF.md section 3.1. */
 export const EXCEL_LESSONS: ExcelLesson[] = [
@@ -54,11 +61,25 @@ export const EXCEL_LESSONS: ExcelLesson[] = [
 /**
  * The SQL track, in curriculum order. BRIEF.md section 3.2.
  *
- * GROUP BY is the reference implementation and sits at order 5, where it will
- * stay when the other seven arrive. The track is deliberately incomplete: the
- * validator reports the shortfall rather than pretending eight exist.
+ * GROUP BY was the reference implementation and stays at order 5, where the
+ * other seven were built around it.
+ *
+ * The eight topics differ from the table in BRIEF.md 3.2, which paired SELECT
+ * and WHERE as separate lessons and ended at HAVING and JOIN. Manuel revised
+ * the set on 6 September 2026: SELECT and WHERE merged, HAVING deferred, and
+ * CASE WHEN and subqueries promoted out of the deferred list. The count is
+ * still eight and GROUP BY still sits fifth, so nothing else moved.
  */
-export const SQL_LESSONS: SqlLesson[] = [groupBy].sort((a, b) => a.order - b.order);
+export const SQL_LESSONS: SqlLesson[] = [
+  selectWhere,
+  orderByLimit,
+  distinct,
+  aggregates,
+  groupBy,
+  innerJoin,
+  caseWhen,
+  subqueries,
+].sort((a, b) => a.order - b.order);
 
 /** How many lessons each track will have when its MVP is complete. */
 export const TRACK_TARGET: Record<Track, number> = { excel: 18, sql: 8 };

@@ -59,7 +59,10 @@ export function Sidebar() {
   }
 
   return (
-    <div className="border-b border-line bg-card lg:sticky lg:top-0 lg:h-dvh lg:w-[250px] lg:shrink-0 lg:overflow-y-auto lg:border-r lg:border-b-0">
+    <div
+      data-chrome="sidebar"
+      className="border-b border-line bg-card lg:sticky lg:top-0 lg:h-dvh lg:w-[250px] lg:shrink-0 lg:overflow-y-auto lg:border-r lg:border-b-0"
+    >
       <div className="flex items-center gap-3 px-5 py-4 lg:pt-5 lg:pb-6">
         <Link href="/" className="flex items-center gap-3 rounded">
           {/* Green place 1 of 4: the logo mark. */}

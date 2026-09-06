@@ -190,3 +190,47 @@ body {
 [data-tint="return"] { background: var(--return-bg); color: var(--return-fg); }
 [data-tint="test"]   { background: var(--test-bg);   color: var(--test-fg); }
 [data-tint="plain"]  { background: var(--plain-bg);  color: var(--plain-fg); }
+
+/* ---------------------------------------------------------------------------
+   Focus mode. Hides the navigation sidebar and the lesson rail so a lesson
+   gets the full width, driven by data-focus on <html>. See lib/focus.ts.
+
+   Every rule is conditioned on the document actually containing a lesson
+   grid. The preference is remembered across navigation and the toggle is
+   offered on lesson pages only, so without that condition an index or a cheat
+   sheet would render with its sidebar hidden and no control to bring it back.
+   A browser without :has() drops these rules and shows the panels, which is
+   the safe direction to fail in.
+
+   Unlayered on purpose: Tailwind v4 puts utilities in a layer, so these beat
+   the grid and display classes on the elements without needing !important.
+   --------------------------------------------------------------------------- */
+
+/* The compact step strip only exists while the rail is away. */
+[data-chrome="steps-compact"] { display: none; }
+
+[data-focus="on"]:has([data-chrome="lesson-grid"]) [data-chrome="rail"] {
+  display: none;
+}
+[data-focus="on"]:has([data-chrome="lesson-grid"]) [data-chrome="steps-compact"] {
+  display: flex;
+}
+
+@media (min-width: 1024px) {
+  /* Below this the sidebar is the only navigation there is, collapsed behind
+     the Menu button, so it stays. */
+  [data-focus="on"]:has([data-chrome="lesson-grid"]) [data-chrome="sidebar"] {
+    display: none;
+  }
+
+  [data-focus="on"]:has([data-chrome="lesson-grid"]) [data-chrome="lesson-grid"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Full width on a wide screen would run the prose out to unreadable line
+     lengths, which is the opposite of what hiding the panels is for. */
+  [data-focus="on"]:has([data-chrome="lesson-grid"]) [data-chrome="main"] {
+    max-width: 1180px;
+    margin-inline: auto;
+  }
+}

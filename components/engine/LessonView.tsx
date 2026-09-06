@@ -14,6 +14,7 @@ import {
 import { useProgress } from "@/lib/useProgress";
 import { Button } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { StepStrip } from "@/components/layout/StepStrip";
 import { IconCheck, IconRedo } from "@/components/ui/icons";
 import { FormulaTask } from "@/components/engine/FormulaTask";
 import { Grid } from "@/components/engine/Grid";
@@ -104,8 +105,25 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
   }
 
   return (
-    <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_260px]">
+    <div
+      data-chrome="lesson-grid"
+      className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_260px]"
+    >
       <div className="min-w-0">
+        <StepStrip
+          steps={STEPS}
+          step={step}
+          onStep={setStep}
+          isDone={(i) =>
+            (i === 1 && state.built) ||
+            (i === 2 && allDone) ||
+            (i === 3 && state.finished) ||
+            i < step
+          }
+          position={`${lesson.order} of ${EXCEL_LESSONS.length}`}
+          done={doneCount}
+          total={lesson.exercises.length}
+        />
         {step === 0 && (
           <section className="rounded-xl border border-line bg-card p-5 sm:p-6">
             <p className="mb-2 text-[11.5px] tracking-wider text-ink-3 uppercase">
@@ -259,7 +277,10 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
         )}
       </div>
 
-      <aside className="rounded-xl border border-line bg-card p-5 lg:sticky lg:top-6">
+      <aside
+        data-chrome="rail"
+        className="rounded-xl border border-line bg-card p-5 lg:sticky lg:top-6"
+      >
         <h2 className="mb-3 text-[12px] font-medium tracking-wider text-ink-3 uppercase">
           This lesson
         </h2>

@@ -30,7 +30,7 @@ export const metadata: Metadata = {
  *  one. No stored value means follow the system setting. This runs before
  *  hydration and stamps an attribute on <html>, which is why the element below
  *  carries suppressHydrationWarning. */
-const THEME_SCRIPT = `try{var t=localStorage.getItem('formula-school.theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t)}}catch(e){}`;
+const THEME_SCRIPT = `try{var d=document.documentElement;var t=localStorage.getItem('formula-school.theme');if(t==='dark'||t==='light'){d.setAttribute('data-theme',t)}var f=localStorage.getItem('formula-school.focus');if(f==='on'){d.setAttribute('data-focus','on')}}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -53,7 +53,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <div className="lg:flex">
           <Sidebar />
-          <main id="main" className="min-w-0 flex-1 px-5 py-6 sm:px-7 lg:px-9 lg:py-7">
+          <main
+            id="main"
+            data-chrome="main"
+            className="min-w-0 flex-1 px-5 py-6 sm:px-7 lg:px-9 lg:py-7"
+          >
             {children}
           </main>
         </div>

@@ -34,6 +34,7 @@ export default async function LessonPage({ params }: PageProps<"/formulas/[id]">
         ]}
         title={lesson.name}
         titleMono
+        focusToggle
         description={lesson.blurb}
       />
       <LessonView lesson={lesson} />

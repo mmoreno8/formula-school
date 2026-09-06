@@ -16,6 +16,32 @@ import { useCallback, useState } from "react";
  */
 export type Stage = "idle" | "hint" | "hint2" | "revealed" | "correct";
 
+/**
+ * Where a wrong answer takes the ladder.
+ *
+ * Pure and exported so the transitions can be tested without a DOM. The
+ * `correct` case is the one that matters: it used to return `correct`
+ * unchanged, so once a step had been solved the ladder froze and every later
+ * wrong answer was still described as right. The SQL track keeps the editor
+ * live after solving, which is exactly where that showed up.
+ *
+ * `revealed` stays sticky, because an answer that has been shown cannot be
+ * un-shown, and re-laddering someone who has already seen it helps nobody.
+ */
+export function stageAfterWrong(stage: Stage): Stage {
+  if (stage === "revealed") return stage;
+  // A wrong answer after a correct one is a fresh attempt at a changed query,
+  // so the ladder starts again rather than jumping to the reveal.
+  if (stage === "idle" || stage === "correct") return "hint";
+  if (stage === "hint") return "hint2";
+  return "revealed";
+}
+
+/** Where a correct answer takes it. Revealing cannot be undone by solving. */
+export function stageAfterCorrect(stage: Stage): Stage {
+  return stage === "revealed" ? "revealed" : "correct";
+}
+
 export interface Attempts {
   stage: Stage;
   syntax: string | null;
@@ -37,17 +63,12 @@ export function useAttempts(): Attempts {
   const registerWrong = useCallback(() => {
     setSyntax(null);
     setWrongCount((n) => n + 1);
-    setStage((s) => {
-      if (s === "correct" || s === "revealed") return s;
-      if (s === "idle") return "hint";
-      if (s === "hint") return "hint2";
-      return "revealed";
-    });
+    setStage(stageAfterWrong);
   }, []);
 
   const registerCorrect = useCallback(() => {
     setSyntax(null);
-    setStage((s) => (s === "revealed" ? "revealed" : "correct"));
+    setStage(stageAfterCorrect);
   }, []);
 
   const showSyntax = useCallback((message: string) => setSyntax(message), []);

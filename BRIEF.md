@@ -5,8 +5,9 @@ testing and deployment). This file is the single source of truth. If something i
 it is not agreed. Anyone can propose a change, but change the file, do not change the code
 and hope.
 
-**Status: draft 5.** Manuel approved an eight-lesson SQL track on 6 September 2026. Nothing in the
-SQL track is built yet.
+**Status: draft 6.** Manuel approved an eight-lesson SQL track on 6 September 2026. All eight are
+built, validated and reviewed. Draft 6 records the sequence that was actually built, which differs
+from the one draft 5 listed.
 
 **Deployment status, corrected in review.** These are three different things and the brief has
 conflated them before:
@@ -22,7 +23,10 @@ reaches production until it is pushed and the workflow is run by hand. "Complete
 statement about the working tree. It is not a statement about what a learner can visit.
 
 Draft history: draft 4 was the eight-lesson Excel expansion approved on 5 September 2026. Draft 5
-adds the SQL track and is the first time the product has had two tracks.
+added the SQL track and was the first time the product had two tracks. Draft 6 corrects the SQL
+curriculum table to the eight lessons that were built, and moves the track from planned to done.
+The change of sequence came from Codex's build prompt rather than an implementation decision, and
+Codex accepted it on review; it is recorded here so the contract and the code agree.
 
 **Visual reference:** the clickable prototype is the design source of truth, not this document's
 descriptions. When they disagree, the prototype wins.
@@ -42,7 +46,7 @@ descriptions. When they disagree, the prototype wins.
 | Unbuilt nav pages | Hidden until the features exist. See section 7 |
 | Hosting | Cloudflare Pages. Codex connects the GitHub repo after review |
 | Domain | Deferred. Not `jobtap.nz` |
-| Second track | SQL, approved 6 September 2026. Eight lessons for the MVP |
+| Second track | SQL, approved 6 September 2026. Eight lessons for the MVP, all built |
 | SQL engine | `sql.js`. SQLite compiled to WebAssembly, running in the browser |
 | SQL dialect | SQLite. The interface says "SQLite SQL" and states that the concepts transfer |
 | SQL route | `/sql`, with the cheat sheet nested at `/sql/cheat-sheet` |
@@ -79,8 +83,7 @@ assumes an adult who is capable and slightly behind, not a beginner who needs ch
 
 ## 3. Curriculum
 
-Two tracks. Eighteen Excel lessons, complete and validator green. Eight SQL lessons, approved and
-unbuilt.
+Two tracks, both complete and validator green. Eighteen Excel lessons and eight SQL lessons.
 
 ### 3.1 Excel track
 
@@ -120,31 +123,37 @@ through `signatures: Signature[]` rather than a single signature.
 
 Eight lessons for the MVP, in this order:
 
-| # | Lesson | Teaches |
-|---|---|---|
-| 1 | SELECT | `SELECT`, `FROM` |
-| 2 | WHERE | `WHERE` |
-| 3 | ORDER BY and LIMIT | `ORDER BY`, `LIMIT` |
-| 4 | Aggregates | `COUNT`, `SUM`, `AVG`, `MIN`, `MAX` |
-| 5 | GROUP BY | `GROUP BY` |
-| 6 | HAVING | `HAVING` |
-| 7 | DISTINCT | `DISTINCT` |
-| 8 | JOIN | `INNER JOIN`, `ON` |
+| # | Lesson | Route | Teaches |
+|---|---|---|---|
+| 1 | SELECT & WHERE | `/sql/select-where` | `SELECT`, `FROM`, `WHERE`, `AND` |
+| 2 | ORDER BY & LIMIT | `/sql/order-by-limit` | `ORDER BY`, `DESC`, `LIMIT`, tiebreakers |
+| 3 | DISTINCT | `/sql/distinct` | `DISTINCT` |
+| 4 | COUNT, SUM & AVG | `/sql/aggregates` | `COUNT`, `SUM`, `AVG`, and what they do with `NULL` |
+| 5 | GROUP BY | `/sql/group-by` | `GROUP BY` |
+| 6 | INNER JOIN | `/sql/inner-join` | `INNER JOIN`, `ON` |
+| 7 | CASE WHEN | `/sql/case-when` | `CASE`, `WHEN`, `THEN`, `ELSE`, `END` |
+| 8 | Subqueries | `/sql/subqueries` | A `SELECT` inside `WHERE`, with `IN` |
 
-Eight ends at JOIN because that is the first coherent stopping point. Stopping earlier would
-teach grouping and never join anything.
+Eight ends at subqueries because that is the first coherent stopping point. Stopping at grouping
+would teach how to summarise and never join anything.
 
-**GROUP BY is built and tested first as the reference implementation**, the role XLOOKUP played
+**Changed in draft 6.** Draft 5 listed SELECT and WHERE as separate lessons, put HAVING sixth and
+ended at JOIN. The track was built with SELECT and WHERE merged into one lesson, HAVING held back,
+and CASE WHEN and subqueries brought forward from the deferred list. The count is still eight and
+GROUP BY still sits fifth, so nothing else in this document had to move.
+
+**GROUP BY was built and tested first as the reference implementation**, the role XLOOKUP played
 for Excel. It exercises aggregation, the clause guidance line, and multi-row result comparison at
-once. It remains fifth so the course order does not move.
+once. The other seven were built to it, and it stays fifth so the course order does not move.
 
-**Deferred to a later phase, not cut:** LEFT JOIN, CASE WHEN, subqueries, and date handling.
-LEFT JOIN is the most likely first addition, because finding what is missing is where interviews
-are actually lost.
+**Deferred to a later phase, not cut:** HAVING, LEFT JOIN and date handling. HAVING and LEFT JOIN
+are the two leading additions. LEFT JOIN answers what is missing, which is where interviews are
+actually lost, and HAVING is the natural next step after GROUP BY for anyone who wants to filter a
+summary rather than the rows underneath it.
 
-**The dialect is SQLite**, because the engine runs in the browser. Of the concepts above, all
-eight are written identically in SQLite, MySQL and PostgreSQL at this level. Dialect divergence
-starts at date handling, which is one reason it sits in the deferred set rather than the MVP.
+**The dialect is SQLite**, because the engine runs in the browser. Every concept above is written
+identically in SQLite, MySQL and PostgreSQL at this level. Dialect divergence starts at date
+handling, which is one reason it sits in the deferred set rather than the MVP.
 The interface says "SQLite SQL" and states plainly that the concepts transfer.
 
 ## 4. Non-goals
@@ -854,11 +863,11 @@ below.
 |---|---|---|
 | 1 | Approve the direction | Manuel. Done, 6 September |
 | 2 | Update the mockup and BRIEF.md to draft 5 | Claude. Done, 6 September, including the review corrections |
-| 3 | Isolated `sql.js` technical proof | Codex. Next |
-| 4 | Shared SQL workspace and the GROUP BY reference lesson | Claude |
-| 5 | The other seven lessons | Claude |
-| 6 | Independent review of every grading edge case | Codex |
-| 7 | One preview deployment | Codex |
+| 3 | Isolated `sql.js` technical proof | Codex. Done, 6 September. Passed, see `SQL-SPIKE-REPORT.md` |
+| 4 | Shared SQL workspace and the GROUP BY reference lesson | Claude. Done, 6 September, after two rounds of review |
+| 5 | The other seven lessons | Claude. Done, 6 September |
+| 6 | Independent review of every grading edge case | Codex. Done, 6 September. Three findings, all closed |
+| 7 | One preview deployment | Codex. Next |
 | 8 | One production deployment, after Manuel approves | Codex |
 
 **Step 3 gates step 4.** No lesson work starts until the engine is proven in isolation. What the
@@ -951,7 +960,7 @@ Claude does not report completion until all of these are true:
 - Keyboard alone can complete a lesson
 - The README explains setup, validation, testing and build
 
-**SQL track. Not met. Nothing built.**
+**SQL track. Met as of the eight-lesson build, and reviewed.**
 
 - All eight lessons load, each with exactly three real exercises in the 5.13 order. No placeholders
 - All twenty-four exercises plus the eight Build targets pass the validator, including every `rejects` case

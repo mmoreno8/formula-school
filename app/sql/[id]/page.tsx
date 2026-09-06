@@ -34,6 +34,7 @@ export default async function SqlLessonPage({ params }: PageProps<"/sql/[id]">) 
         ]}
         title={lesson.name}
         titleMono
+        focusToggle
         description={lesson.blurb}
       />
       <SqlLessonView lesson={lesson} />

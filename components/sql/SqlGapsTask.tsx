@@ -43,7 +43,6 @@ export function assemble(template: string, values: string[]): string {
 interface Props {
   exercise: SqlGapsExercise;
   db: TableSet;
-  solved: boolean;
   onSolved: () => void;
 }
 
@@ -56,7 +55,7 @@ interface Props {
  * filled in, so a learner who writes a different but equivalent expression is
  * still graded on what it returns.
  */
-export function SqlGapsTask({ exercise, db, solved, onSolved }: Props) {
+export function SqlGapsTask({ exercise, db, onSolved }: Props) {
   const [values, setValues] = useState<string[]>(() =>
     exercise.gaps.map(() => ""),
   );
@@ -77,7 +76,6 @@ export function SqlGapsTask({ exercise, db, solved, onSolved }: Props) {
       spec={exercise}
       sql={sql}
       canRun={filled}
-      solved={solved}
       onSolved={onSolved}
       caption={`Result for ${exercise.id}`}
     >

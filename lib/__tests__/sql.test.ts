@@ -9,6 +9,7 @@ import {
 import { buildSeed, validateTableSet } from "@/lib/sql/seed";
 import { activeClauseAt } from "@/lib/sql/activeClause";
 import { runQueryNode, gradeQueryNode } from "@/lib/sql/node";
+import { SQL_LESSONS } from "@/content";
 import type { TableSet } from "@/lib/schema";
 import type { ResultSet } from "@/lib/sql/types";
 
@@ -360,5 +361,214 @@ describe("grading through the real engine", () => {
       spec,
     );
     expect(g.kind).toBe("missing-clause");
+  });
+});
+
+/* ------------------- the lesson content, through the engine ---------------- */
+
+/**
+ * These run against the real lesson datasets rather than a fixture, so they
+ * fail if the content moves underneath them. The validator already proves
+ * every canonical runs and every reject is refused; what it does not prove is
+ * the specific behaviours BRIEF.md section 13 asks to be verified by hand:
+ * ordering both ways, INNER against LEFT, NULL aggregation, aliases, and a
+ * subquery that a hardcoded number could have faked.
+ */
+describe("SQL lessons, the behaviours the brief asks to see verified", () => {
+  const lesson = (id: string) => {
+    const l = SQL_LESSONS.find((x) => x.id === id);
+    if (!l) throw new Error(`no lesson ${id}`);
+    return l;
+  };
+
+  describe("result ordering, proved in both directions", () => {
+    it("fails a correct set of rows in the wrong order where ordering is taught", async () => {
+      const l = lesson("order-by-limit");
+      const ex = l.exercises[1];
+      expect(ex.orderMatters).toBe(true);
+      // Sorted the wrong way rather than not sorted, so mustUse is satisfied
+      // and the ordering rule is the only thing left that can fail it.
+      const sql =
+        "SELECT name, revenue FROM products WHERE category = 'kitchen' ORDER BY revenue";
+      const g = await gradeQueryNode(l.db, sql, ex);
+      expect(g.kind).toBe("wrong");
+      expect(g.kind === "wrong" && g.detail).toBeUndefined();
+
+      // The same query against the same rows passes once ordering stops
+      // counting, which isolates the order as the only difference.
+      const loosened = await gradeQueryNode(l.db, sql, {
+        ...ex,
+        orderMatters: false,
+      });
+      expect(loosened.kind).toBe("correct");
+    });
+
+    it("passes the same rows in a different order where ordering is not taught", async () => {
+      const l = lesson("group-by");
+      const ex = l.exercises[2];
+      expect(ex.orderMatters).toBe(false);
+      const g = await gradeQueryNode(
+        l.db,
+        "SELECT region, MAX(amount) AS biggest FROM orders GROUP BY region ORDER BY region DESC",
+        ex,
+      );
+      expect(g.kind).toBe("correct");
+    });
+
+    it("settles a tie with the second sort column rather than leaving it to the engine", async () => {
+      const l = lesson("order-by-limit");
+      const untied = await runQueryNode(
+        l.db,
+        "SELECT name, units FROM products ORDER BY units DESC",
+      );
+      const tied = await runQueryNode(
+        l.db,
+        "SELECT name, units FROM products ORDER BY units DESC, name DESC",
+      );
+      if (!untied.ok || !tied.ok) throw new Error("query failed");
+      // Two products sit on 120 units, so the two orders genuinely differ.
+      expect(untied.result.rows).not.toEqual(tied.result.rows);
+    });
+  });
+
+  describe("INNER JOIN against LEFT JOIN", () => {
+    const l = () => lesson("inner-join");
+
+    it("drops the order whose customer does not exist", async () => {
+      const inner = await runQueryNode(l().db, l().build.canonical);
+      const left = await runQueryNode(
+        l().db,
+        "SELECT customers.name, orders.amount FROM orders LEFT JOIN customers ON orders.customer_id = customers.id",
+      );
+      if (!inner.ok || !left.ok) throw new Error("query failed");
+      expect(inner.result.rows).toHaveLength(5);
+      expect(left.result.rows).toHaveLength(6);
+      expect(left.result.rows.some((r) => r[0] === null)).toBe(true);
+    });
+
+    it("drops the customer who has never ordered", async () => {
+      const out = await runQueryNode(l().db, l().build.canonical);
+      if (!out.ok) throw new Error("query failed");
+      expect(out.result.rows.some((r) => r[0] === "Brightsmith")).toBe(false);
+    });
+
+    it("accepts the join written with table aliases and the tables the other way round", async () => {
+      const g = await gradeQueryNode(
+        l().db,
+        "SELECT c.name, o.amount FROM customers c JOIN orders o ON o.customer_id = c.id",
+        l().build,
+      );
+      expect(g.kind).toBe("correct");
+    });
+  });
+
+  describe("aggregating a column that has NULLs in it", () => {
+    const l = () => lesson("aggregates");
+
+    it("counts rows and counted values as different numbers", async () => {
+      const out = await runQueryNode(l().db, l().build.canonical);
+      if (!out.ok) throw new Error("query failed");
+      expect(out.result.rows).toEqual([[8, 5]]);
+    });
+
+    it("leaves NULLs out of AVG on both sides of the division", async () => {
+      const out = await runQueryNode(
+        l().db,
+        "SELECT AVG(rating) AS a, SUM(rating) AS b, COUNT(rating) AS c FROM tickets",
+      );
+      if (!out.ok) throw new Error("query failed");
+      // 18 / 5, not 18 / 8. The three unrated tickets are absent from both.
+      expect(out.result.rows).toEqual([[3.6, 18, 5]]);
+    });
+
+    it("marks a hand-worked average wrong, because it divides by every row", async () => {
+      const ex = l().exercises[1];
+      const sql = "SELECT SUM(rating) / COUNT(*) AS average_rating FROM tickets";
+
+      // mustUse is checked first, so this is what the learner is told.
+      const g = await gradeQueryNode(l().db, sql, ex);
+      expect(g.kind).toBe("missing-clause");
+
+      // It is also a different number, so the dataset would have caught it on
+      // its own. 18 / 8 in whole-number division is 2, and AVG gives 3.6.
+      const bare = await gradeQueryNode(l().db, sql, { ...ex, mustUse: undefined });
+      expect(bare.kind).toBe("wrong");
+    });
+  });
+
+  describe("aliases on computed columns", () => {
+    const l = () => lesson("aggregates");
+
+    it("accepts an alias that differs only in case and spacing", async () => {
+      const g = await gradeQueryNode(
+        l().db,
+        "SELECT count(*) AS TICKETS, count( rating ) AS Rated FROM tickets",
+        l().build,
+      );
+      expect(g.kind).toBe("correct");
+    });
+
+    it("rejects the alias the prompt asked for being spelled differently", async () => {
+      const g = await gradeQueryNode(
+        l().db,
+        "SELECT COUNT(*) AS total, COUNT(rating) AS rated FROM tickets",
+        l().build,
+      );
+      expect(g.kind).toBe("wrong");
+    });
+
+    it("says which column came back wrong without giving the answer away", async () => {
+      const g = await gradeQueryNode(
+        l().db,
+        "SELECT COUNT(*) AS total, COUNT(rating) AS rated FROM tickets",
+        l().build,
+      );
+      expect(g.kind === "wrong" && g.detail).toContain("total");
+      expect(g.kind === "wrong" && g.detail).not.toContain("tickets");
+    });
+  });
+
+  describe("subqueries", () => {
+    const l = () => lesson("subqueries");
+
+    it("computes the threshold rather than trusting a typed-in number", async () => {
+      const out = await runQueryNode(
+        l().db,
+        "SELECT AVG(amount) AS a FROM orders",
+      );
+      if (!out.ok) throw new Error("query failed");
+      expect(out.result.rows).toEqual([[1010]]);
+    });
+
+    it("refuses a hardcoded threshold that returns exactly the right rows", async () => {
+      const spec = l().build;
+      const hardcoded = "SELECT customer, amount FROM orders WHERE amount > 1012";
+      // It really does return the right rows. Only mustUse stands between it
+      // and being accepted, which is the point of requiring AVG here.
+      const bare = await gradeQueryNode(l().db, hardcoded, {
+        ...spec,
+        mustUse: undefined,
+      });
+      expect(bare.kind).toBe("correct");
+      const graded = await gradeQueryNode(l().db, hardcoded, spec);
+      expect(graded.kind).toBe("missing-clause");
+    });
+
+    it("does not count AVG inside a comment or a string as using it", async () => {
+      const spec = l().build;
+      const g = await gradeQueryNode(
+        l().db,
+        "SELECT customer, amount FROM orders WHERE amount > 1012 -- AVG(amount)",
+        spec,
+      );
+      expect(g.kind).toBe("missing-clause");
+    });
+
+    it("keeps every order from a matched region, not only the big ones", async () => {
+      const ex = l().exercises[1];
+      const out = await runQueryNode(l().db, ex.canonical);
+      if (!out.ok) throw new Error("query failed");
+      expect(out.result.rows).toHaveLength(5);
+    });
   });
 });

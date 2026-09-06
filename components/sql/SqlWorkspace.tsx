@@ -13,7 +13,6 @@ interface Props {
   clauses?: ClauseSpec[];
   starter: string;
   prompt: string;
-  solved: boolean;
   onSolved: () => void;
   editorId: string;
   caption: string;
@@ -32,7 +31,6 @@ export function SqlWorkspace({
   clauses,
   starter,
   prompt,
-  solved,
   onSolved,
   editorId,
   caption,
@@ -93,7 +91,6 @@ export function SqlWorkspace({
           db={db}
           spec={spec}
           sql={sql}
-          solved={solved}
           onSolved={onSolved}
           caption={caption}
         >
