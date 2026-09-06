@@ -1,0 +1,13 @@
+{
+  "name": "formula-school",
+  "pages_build_output_dir": "./out",
+  "compatibility_date": "2026-09-06",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "formula-school-progress",
+      "database_id": "82ef98bb-a4a0-48de-9723-d8c4d5339b4e",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

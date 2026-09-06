@@ -9,6 +9,7 @@ import { lessonProgress, type ProgressMap } from "@/lib/progress";
 import { useProgress } from "@/lib/useProgress";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { ProgressAccount } from "@/components/layout/ProgressAccount";
 import { IconList, IconOverview, IconSheet } from "@/components/ui/icons";
 
 /**
@@ -156,10 +157,7 @@ export function Sidebar() {
 
         <div className="mt-6 px-3 lg:mt-auto">
           <ThemeToggle />
-          <p className="mx-2 mt-3 rounded-[9px] border border-line bg-raise px-3 py-2.5 text-[12.5px] leading-relaxed text-ink-3">
-            Your progress is saved on this device. No account, nothing to sign up
-            for.
-          </p>
+          <ProgressAccount />
         </div>
       </div>
     </div>

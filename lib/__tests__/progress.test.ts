@@ -21,6 +21,7 @@ const {
   markBuilt,
   markExerciseDone,
   markFinished,
+  mergeProgress,
   readProgress,
   resetLesson,
 } = await import("@/lib/progress");
@@ -80,5 +81,26 @@ describe("markFinished", () => {
     markFinished("xlookup", IDS);
     expect(lessonProgress(readProgress(), "sum").finished).toBe(true);
     expect(read().finished).toBe(false);
+  });
+});
+
+describe("mergeProgress", () => {
+  it("keeps every completed exercise from the device and cloud", () => {
+    expect(mergeProgress(
+      { sum: { done: ["sum-1"], built: true, finished: false } },
+      { sum: { done: ["sum-2", "sum-1"], built: false, finished: true } },
+    )).toEqual({
+      sum: { done: ["sum-1", "sum-2"], built: true, finished: true },
+    });
+  });
+
+  it("keeps lessons that exist on only one side", () => {
+    expect(mergeProgress(
+      { sum: { done: ["sum-1"], built: false, finished: false } },
+      { select: { done: [], built: true, finished: false } },
+    )).toEqual({
+      sum: { done: ["sum-1"], built: false, finished: false },
+      select: { done: [], built: true, finished: false },
+    });
   });
 });

@@ -56,7 +56,7 @@ export function readProgress(): ProgressMap {
   }
 }
 
-function write(map: ProgressMap): void {
+export function writeProgress(map: ProgressMap): void {
   if (!isBrowser()) return;
   try {
     localStorage.setItem(KEY, JSON.stringify(map));
@@ -64,6 +64,21 @@ function write(map: ProgressMap): void {
   } catch {
     // Storage full or blocked. Progress is a convenience, never a blocker.
   }
+}
+
+/** Keep every completed piece from both the device and the cloud. */
+export function mergeProgress(a: ProgressMap, b: ProgressMap): ProgressMap {
+  const merged: ProgressMap = {};
+  for (const id of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    const left = lessonProgress(a, id);
+    const right = lessonProgress(b, id);
+    merged[id] = {
+      done: [...new Set([...left.done, ...right.done])],
+      built: left.built || right.built,
+      finished: left.finished || right.finished,
+    };
+  }
+  return merged;
 }
 
 export const PROGRESS_EVENT = "formula-school:progress";
@@ -116,7 +131,7 @@ export function markExerciseDone(lessonId: string, exerciseId: string): void {
   const current = lessonProgress(map, lessonId);
   if (current.done.includes(exerciseId)) return;
   map[lessonId] = { ...current, done: [...current.done, exerciseId] };
-  write(map);
+  writeProgress(map);
 }
 
 export function markBuilt(lessonId: string): void {
@@ -124,7 +139,7 @@ export function markBuilt(lessonId: string): void {
   const current = lessonProgress(map, lessonId);
   if (current.built) return;
   map[lessonId] = { ...current, built: true };
-  write(map);
+  writeProgress(map);
 }
 
 /**
@@ -138,13 +153,13 @@ export function markFinished(lessonId: string, requiredExerciseIds: string[]): v
   if (current.finished) return;
   if (!requiredExerciseIds.every((id) => current.done.includes(id))) return;
   map[lessonId] = { ...current, finished: true };
-  write(map);
+  writeProgress(map);
 }
 
 export function resetLesson(lessonId: string): void {
   const map = readProgress();
   delete map[lessonId];
-  write(map);
+  writeProgress(map);
 }
 
 export function resetEverything(): void {

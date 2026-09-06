@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s · Formula School",
   },
   description:
-    "Ten practical Excel formulas, taught through short interactive exercises. No account, no spreadsheet clone.",
+    "Practical Excel formulas and SQL, taught through short interactive exercises. No spreadsheet clone.",
 };
 
 /** Applies a saved theme before first paint, so there is no flash of the wrong

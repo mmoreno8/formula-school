@@ -5,9 +5,9 @@ testing and deployment). This file is the single source of truth. If something i
 it is not agreed. Anyone can propose a change, but change the file, do not change the code
 and hope.
 
-**Status: draft 6.** Manuel approved an eight-lesson SQL track on 6 September 2026. All eight are
-built, validated and reviewed. Draft 6 records the sequence that was actually built, which differs
-from the one draft 5 listed.
+**Status: draft 7.** Manuel approved optional Google progress saving on 6 September 2026. The site
+still works without an account and stores progress locally by default. A learner may use Google
+only to preserve that same progress across devices.
 
 **Deployment status, corrected in review.** These are three different things and the brief has
 conflated them before:
@@ -27,6 +27,7 @@ added the SQL track and was the first time the product had two tracks. Draft 6 c
 curriculum table to the eight lessons that were built, and moves the track from planned to done.
 The change of sequence came from Codex's build prompt rather than an implementation decision, and
 Codex accepted it on review; it is recorded here so the contract and the code agree.
+Draft 7 adds optional Google identity and cloud progress sync without introducing a login wall.
 
 **Visual reference:** the clickable prototype is the design source of truth, not this document's
 descriptions. When they disagree, the prototype wins.
@@ -158,29 +159,23 @@ The interface says "SQLite SQL" and states plainly that the concepts transfer.
 
 ## 4. Non-goals
 
-No user accounts. **No server-side database.** No payments. No AI tutor. No Microsoft API. No
+No passwords, account-management area or gated lessons. No payments. No AI tutor. No Microsoft API. No
 spreadsheet clone. No ribbon, no menus, no cell formatting, no multi-sheet workbooks. No
 downloadable workbooks. No streaks, no badges, no confetti. No lesson gating: every lesson in
 both tracks is open from the first visit.
 
-**Amended in draft 5.** This line previously read "No database" with no qualifier. That was
-always about not storing user data on a server, but the text did not say so, and as written it
-ruled out the SQL track's teaching engine. The rule is now explicit: no server-side database, and
-no persistence of any kind beyond `localStorage`. SQLite compiled to WebAssembly, running inside
-the learner's browser and holding nothing between page loads, is the SQL track's teaching engine
-and is not a database in the sense this non-goal means.
+**Amended in draft 7.** The teaching experience remains anonymous and local-first. Cloudflare D1
+may store only a Google user's identity fields and the same three progress fields already kept in
+`localStorage`. It does not store answers, attempts, scores, queries or formulas.
 
-**No server-side anything.** No route handlers, no API routes, no server actions, no middleware,
-no backend query execution, no runtime server dependencies. The app is a pure static export and
-must stay one. `next.config.ts` sets `output: "export"`, every lesson route in both tracks is
-generated at build time through `generateStaticParams`, and `npm run build` writes a
-self-contained `out/` directory. Break any of this and the build stops producing something
-Cloudflare Pages can host.
+**Static lessons, small sync service.** The learning UI remains a pure static export. Cloudflare
+Pages Functions exist only under `/api/*` for Google identity, session cookies and progress sync;
+they never execute learner SQL. `next.config.ts` keeps `output: "export"`, every lesson route is
+generated at build time, and `npm run build` still writes the complete learning site to `out/`.
 
 This rule is why the SQL track runs SQLite in the browser rather than sending queries to a server.
 Client-side execution avoids requiring Formula School to introduce backend query infrastructure,
-accounts or server-side persistence. It is what lets the product stay free, keep working with no
-sign-up, and remain a folder of static files.
+backend query infrastructure. Lessons remain free and fully usable with no sign-up.
 
 **Explicitly out of scope for the SQL MVP**, on top of the above: no MySQL or PostgreSQL dialect
 selector, no Python or R, no saved query history, no interview-question library, and no backend
@@ -361,7 +356,9 @@ Two additions to that ladder:
 
 ### Progress and what the numbers mean
 
-Progress lives in `localStorage`. Nothing else is persisted. There is no account and no database.
+Progress lives in `localStorage` by default. A learner can choose **Save my progress with Google**
+to sync it through a Cloudflare Pages Function to D1. There is no password, conventional sign-up
+form or login wall. Ignoring the Google control changes nothing about the product.
 
 Three things are stored per lesson, and only these three:
 
@@ -372,6 +369,11 @@ Three things are stored per lesson, and only these three:
 The third was added during review. It carries no score, it is what lets the lesson rail show a
 solved Build step when the learner comes back to the page, and without it the rail would forget
 work the learner had already done. Everything the original two bullets forbade still stands.
+
+On first Google save, device and cloud progress merge monotonically: completed exercise ids are
+unioned and `built` and `finished` use logical OR. Existing completed work is never overwritten.
+Later changes sync automatically while the session is active. The session is a secure, HttpOnly,
+SameSite cookie created only after the server verifies Google's ID token.
 
 **Finished has one meaning.** A lesson is finished when all three of its exercises are
 completed, and at no other time. The rail lets the learner jump straight to the Done step, so
@@ -417,9 +419,8 @@ a finished thing feel unfinished, however honest the copy is. They come back whe
 
 Every page has a breadcrumb, an H1, and one line of description underneath. No exceptions.
 
-Bottom of the sidebar: the dark mode toggle, and a short note saying progress is saved on this
-device with no account needed. That note is where a gated site would put its sign-up button, and
-it answers the "do I need an account" question before it gets asked.
+Bottom of the sidebar: the dark mode toggle, a note that progress is saved on this device, and the
+optional Google save control. The copy explains that Google is only needed for cross-device sync.
 
 ### Deployment shape
 
