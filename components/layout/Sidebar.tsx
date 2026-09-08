@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId, useState } from "react";
 import { EXCEL_LESSONS, SQL_LESSONS, TRACK_TARGET } from "@/content";
-import type { Lesson } from "@/lib/schema";
+import type { Lesson, Track } from "@/lib/schema";
 import { lessonProgress, type ProgressMap } from "@/lib/progress";
 import { useProgress } from "@/lib/useProgress";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -13,29 +13,44 @@ import { ProgressAccount } from "@/components/layout/ProgressAccount";
 import { IconList, IconOverview, IconSheet } from "@/components/ui/icons";
 
 /**
- * Two tracks, each in its own labelled group, each with its own progress bar.
- * BRIEF.md section 7. Excel routes do not move.
+ * Overview on its own, then one labelled group per track. BRIEF.md section 7.
+ *
+ * Each track carries its own progress inside its own group rather than in a
+ * shared block at the top, so an Excel count is never read as a site total.
+ * Excel routes do not move: the group says Excel, the href still says
+ * /formulas, and nothing bookmarked breaks.
  */
-const GROUPS = [
+const GROUPS: {
+  label: string | null;
+  track: Track | null;
+  items: {
+    href: string;
+    label: string;
+    Icon: (props: { className?: string }) => React.ReactElement;
+  }[];
+}[] = [
   {
     label: null,
+    track: null,
     items: [{ href: "/", label: "Overview", Icon: IconOverview }],
   },
   {
     label: "Excel",
+    track: "excel",
     items: [
-      { href: "/formulas", label: "Formulas", Icon: IconList },
+      { href: "/formulas", label: "Lessons", Icon: IconList },
       { href: "/cheat-sheet", label: "Cheat sheet", Icon: IconSheet },
     ],
   },
   {
     label: "SQL",
+    track: "sql",
     items: [
       { href: "/sql", label: "Lessons", Icon: IconList },
       { href: "/sql/cheat-sheet", label: "Cheat sheet", Icon: IconSheet },
     ],
   },
-] as const;
+];
 
 function finishedIn(lessons: Lesson[], progress: ProgressMap): number {
   return lessons.filter((l) => lessonProgress(progress, l.id).finished).length;
@@ -47,8 +62,10 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
   const navId = useId();
 
-  const excelDone = finishedIn(EXCEL_LESSONS, progress);
-  const sqlDone = finishedIn(SQL_LESSONS, progress);
+  const done: Record<Track, number> = {
+    excel: finishedIn(EXCEL_LESSONS, progress),
+    sql: finishedIn(SQL_LESSONS, progress),
+  };
 
   function isActive(href: string): boolean {
     if (href === "/") return pathname === "/";
@@ -90,44 +107,26 @@ export function Sidebar() {
         id={navId}
         className={`${open ? "block" : "hidden"} pb-4 lg:block lg:flex lg:h-[calc(100dvh-86px)] lg:flex-col lg:pb-4`}
       >
-        <div className="flex flex-col gap-3 px-5 pb-4">
-          <div>
-            <div className="mb-1 flex items-baseline justify-between text-[12px] text-ink-2">
-              <span>Excel</span>
-              <span className="tabular-nums">
-                {excelDone} / {TRACK_TARGET.excel}
-              </span>
-            </div>
-            <ProgressBar
-              value={excelDone}
-              max={TRACK_TARGET.excel}
-              label="Excel lessons finished"
-              className="h-[5px]"
-            />
-          </div>
-          <div>
-            <div className="mb-1 flex items-baseline justify-between text-[12px] text-ink-2">
-              <span>SQL</span>
-              <span className="tabular-nums">
-                {sqlDone} / {TRACK_TARGET.sql}
-              </span>
-            </div>
-            <ProgressBar
-              value={sqlDone}
-              max={TRACK_TARGET.sql}
-              label="SQL lessons finished"
-              className="h-[5px]"
-            />
-          </div>
-        </div>
-
         <nav aria-label="Main" className="flex flex-col border-t border-line px-3 pt-2">
           {GROUPS.map((group, gi) => (
             <div key={group.label ?? `g${gi}`} className="flex flex-col gap-px">
-              {group.label && (
-                <p className="px-2.5 pt-3 pb-1 text-[10.5px] font-medium tracking-wider text-ink-3 uppercase">
-                  {group.label}
-                </p>
+              {group.label && group.track && (
+                <div className="px-2.5 pt-4 pb-2">
+                  <div className="mb-1.5 flex items-baseline justify-between">
+                    <p className="text-[10.5px] font-medium tracking-wider text-ink-3 uppercase">
+                      {group.label}
+                    </p>
+                    <span className="text-[11.5px] text-ink-3 tabular-nums">
+                      {done[group.track]} / {TRACK_TARGET[group.track]}
+                    </span>
+                  </div>
+                  <ProgressBar
+                    value={done[group.track]}
+                    max={TRACK_TARGET[group.track]}
+                    label={`${group.label} lessons finished`}
+                    className="h-[5px]"
+                  />
+                </div>
               )}
               {group.items.map(({ href, label, Icon }) => {
                 const active = isActive(href);

@@ -4,7 +4,7 @@ import { Overview } from "./Overview";
 export const metadata: Metadata = {
   title: "Overview",
   description:
-    "Where you are up to, and the next thing to do. Ten practical Excel formulas, taught through short interactive exercises.",
+    "Two tracks, Excel and SQL, each taught through short interactive exercises. Pick one up where you left it.",
 };
 
 export default function HomePage() {

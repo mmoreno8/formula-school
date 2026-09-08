@@ -14,82 +14,78 @@ import { useProgress } from "@/lib/useProgress";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
-import { LessonCard } from "@/components/layout/LessonCard";
 
 function stats(lessons: Lesson[], progress: ProgressMap) {
   const finished = lessons.filter((l) => lessonProgress(progress, l.id).finished);
+  const hasStarted = (l: Lesson) => {
+    const state = lessonProgress(progress, l.id);
+    return state.built || state.done.length > 0 || state.finished;
+  };
+  const started = lessons.some(hasStarted);
   const exercisesDone = lessons.reduce((n, l) => {
     const state = lessonProgress(progress, l.id);
     return n + l.exercises.filter((e) => state.done.includes(e.id)).length;
   }, 0);
-  const upNext = lessons.find((l) => !lessonProgress(progress, l.id).finished);
-  return { finished: finished.length, exercisesDone, upNext };
+  const upNext =
+    lessons.find(
+      (l) => hasStarted(l) && !lessonProgress(progress, l.id).finished,
+    ) ?? lessons.find((l) => !lessonProgress(progress, l.id).finished);
+  return { finished: finished.length, exercisesDone, upNext, started };
 }
 
-/** One panel per track, so neither is the afterthought. BRIEF.md section 7. */
-function TrackPanel({
+/**
+ * One card per track, and nothing else. BRIEF.md section 7.
+ *
+ * This page used to print both full lesson catalogues underneath these cards,
+ * which put twenty-six lessons from two different subjects on one scroll. The
+ * catalogues live at /formulas and /sql, one track each, and this page is the
+ * door to them rather than a copy of them.
+ */
+function TrackCard({
   title,
   href,
+  listLabel,
   lessons,
   target,
   progress,
-  blurb,
+  description,
 }: {
   title: string;
   href: string;
+  listLabel: string;
   lessons: Lesson[];
   target: number;
   progress: ProgressMap;
-  blurb: string;
+  description: string;
 }) {
-  const { finished, exercisesDone, upNext } = stats(lessons, progress);
+  const { finished, exercisesDone, upNext, started } = stats(lessons, progress);
   const total = lessons.reduce((n, l) => n + l.exercises.length, 0);
-  const started = exercisesDone > 0;
 
   return (
-    <section className="rounded-xl border border-line bg-card p-5 sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[11.5px] tracking-wider text-ink-3 uppercase">
-            {title}
-          </p>
-          {upNext ? (
-            <>
-              <p className="mt-1.5 font-mono text-xl font-medium tracking-tight">
-                {upNext.name}
-              </p>
-              <p className="mt-1 max-w-[52ch] text-[14.5px] text-ink-2">
-                {upNext.blurb}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="mt-1.5 text-xl font-medium tracking-tight">
-                You have been through all of it
-              </p>
-              <p className="mt-1 max-w-[52ch] text-[14.5px] text-ink-2">{blurb}</p>
-            </>
-          )}
-        </div>
-        {upNext ? (
-          <Link href={lessonHref(upNext)}>
-            <Button variant="primary">
-              {started ? "Carry on" : "Start the first lesson"}
-            </Button>
-          </Link>
-        ) : (
-          <Link href={href}>
-            <Button>Back to the list</Button>
-          </Link>
-        )}
-      </div>
+    <section
+      className="rounded-xl border border-line bg-card p-5 sm:p-6"
+      aria-labelledby={`track-${title}`}
+    >
+      <h2
+        id={`track-${title}`}
+        className="text-[11.5px] tracking-wider text-ink-3 uppercase"
+      >
+        {title}
+      </h2>
+      <p className="mt-1.5 max-w-[52ch] text-[14.5px] leading-relaxed text-ink-2">
+        {description}
+      </p>
 
       <div className="mt-5 grid gap-5 border-t border-line pt-5 sm:grid-cols-2">
         <div>
           <p className="mb-2 text-[12.5px] text-ink-2 tabular-nums">
             {finished} of {target} lessons finished
           </p>
-          <ProgressBar value={finished} max={target} label={`${title} lessons finished`} />
+          <ProgressBar
+            value={finished}
+            max={target}
+            label={`${title} lessons finished`}
+          />
         </div>
         <div>
           <p className="mb-2 text-[12.5px] text-ink-2 tabular-nums">
@@ -102,67 +98,70 @@ function TrackPanel({
           />
         </div>
       </div>
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        {upNext ? (
+          <Link href={lessonHref(upNext)}>
+            <Button variant="primary">
+              {started ? `Continue ${title}` : `Start ${title}`}
+            </Button>
+          </Link>
+        ) : (
+          <Link href={href}>
+            <Button variant="primary">{`Back to ${title} lessons`}</Button>
+          </Link>
+        )}
+        {upNext && (
+          <span className="font-mono text-[13.5px] text-ink-3">
+            {upNext.name}
+          </span>
+        )}
+        <Link
+          href={href}
+          className="ml-auto rounded text-[13.5px] text-ink-3 hover:text-ink-2"
+        >
+          {listLabel}
+        </Link>
+      </div>
     </section>
   );
 }
 
 export function Overview() {
   const progress = useProgress();
-  const sqlBuilt = SQL_LESSONS.length;
 
   return (
     <>
       <PageHeader
         crumbs={[{ label: "Home" }]}
         title="Overview"
-        description={`Two tracks: ${TRACK_TARGET.excel} Excel lessons and ${TRACK_TARGET.sql} SQL lessons, all of it the kind of work that turns up in a real analyst job. Your progress stays on this device.`}
+        description="Two tracks, taught the same way. Pick the one you are working on and carry on where you stopped. Your progress stays on this device unless you choose to save it with Google."
       />
 
       <div className="flex flex-col gap-3.5">
-        <TrackPanel
+        <TrackCard
           title="Excel"
           href="/formulas"
+          listLabel={`All ${EXCEL_LESSONS.length} Excel lessons`}
           lessons={EXCEL_LESSONS}
           target={TRACK_TARGET.excel}
           progress={progress}
-          blurb="The cheat sheet has every signature on one page when you need a reminder, and any lesson can be redone from scratch."
+          description="The formulas that turn up in analyst work, one per lesson. You read the problem, build the formula in a guided formula bar, then practise it three times."
         />
-        <TrackPanel
+        <TrackCard
           title="SQL"
           href="/sql"
+          listLabel={`All ${SQL_LESSONS.length} SQL lessons`}
           lessons={SQL_LESSONS}
           target={TRACK_TARGET.sql}
           progress={progress}
-          blurb="More SQL lessons are on the way. The ones here are finished rather than previews."
+          description="Reading and summarising data with SQLite SQL. Real queries against real tables, running in your browser with nothing to install."
         />
       </div>
 
-      <h2 className="mt-9 mb-3.5 text-[12px] font-medium tracking-wider text-ink-3 uppercase">
-        All Excel lessons
-      </h2>
-      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
-        {EXCEL_LESSONS.map((lesson) => (
-          <LessonCard key={lesson.id} lesson={lesson} progress={progress} />
-        ))}
-      </div>
-
-      <h2 className="mt-9 mb-3.5 text-[12px] font-medium tracking-wider text-ink-3 uppercase">
-        SQL lessons
-      </h2>
-      {sqlBuilt < TRACK_TARGET.sql && (
-        <p className="mb-3.5 text-[13.5px] text-ink-3">
-          {sqlBuilt} of {TRACK_TARGET.sql} built so far.
-        </p>
-      )}
-      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
-        {SQL_LESSONS.map((lesson) => (
-          <LessonCard key={lesson.id} lesson={lesson} progress={progress} />
-        ))}
-      </div>
-
       <p className="mt-8 max-w-[66ch] text-[13.5px] leading-relaxed text-ink-3">
-        Everything here runs in your browser, including the SQL. Nothing is sent
-        anywhere, and there is no account.
+        Lessons run in your browser, including the SQL. An account is optional
+        and is used only when you choose to save progress with Google.
       </p>
     </>
   );

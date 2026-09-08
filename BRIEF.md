@@ -5,22 +5,24 @@ testing and deployment). This file is the single source of truth. If something i
 it is not agreed. Anyone can propose a change, but change the file, do not change the code
 and hope.
 
-**Status: draft 7.** Manuel approved optional Google progress saving on 6 September 2026. The site
-still works without an account and stores progress locally by default. A learner may use Google
-only to preserve that same progress across devices.
+**Status: draft 8.** Manuel separated the two tracks into their own areas on 9 September 2026.
+Excel pages carry only Excel, SQL pages carry only SQL, and the homepage became a track selector
+instead of a combined catalogue. The lesson-transition labels were corrected in the same pass.
 
-**Deployment status, corrected in review.** These are three different things and the brief has
-conflated them before:
+**Deployment status.** These are different things and the brief has conflated them before. Draft 8
+is reviewed and released by Codex as one production deployment on 9 September 2026:
 
 | | State |
 |---|---|
-| Live in production | The ten-lesson MVP, from `0f87a6f` and `7154d60` |
-| Pushed to `origin/main` | Up to `1d6b6ba`, the manual deployment workflow |
-| Local only | `a151838`, the eighteen-lesson Excel expansion. Committed, complete, validator green, **not pushed and therefore not deployed** |
+| Repository | Draft 8 navigation separation and transition labels on `main` and `origin/main` |
+| Live in production | Draft 8, deployed by Codex after independent review on 9 September 2026 |
 
 Production deploys are `workflow_dispatch` only and build from `main` on the remote, so nothing
 reaches production until it is pushed and the workflow is run by hand. "Complete and green" is a
 statement about the working tree. It is not a statement about what a learner can visit.
+
+Earlier drafts recorded production as the ten-lesson MVP and that claim went stale without anyone
+noticing. Production status is now updated only by Codex as part of the reviewed release itself.
 
 Draft history: draft 4 was the eight-lesson Excel expansion approved on 5 September 2026. Draft 5
 added the SQL track and was the first time the product had two tracks. Draft 6 corrects the SQL
@@ -28,6 +30,9 @@ curriculum table to the eight lessons that were built, and moves the track from 
 The change of sequence came from Codex's build prompt rather than an implementation decision, and
 Codex accepted it on review; it is recorded here so the contract and the code agree.
 Draft 7 adds optional Google identity and cloud progress sync without introducing a login wall.
+Draft 8 separates the two tracks into distinct areas, turns the homepage into a track selector,
+fixes the lesson-transition labels, and records Data Cleaning as a planned third track that is
+deliberately absent from the navigation.
 
 **Visual reference:** the clickable prototype is the design source of truth, not this document's
 descriptions. When they disagree, the prototype wins.
@@ -51,7 +56,8 @@ descriptions. When they disagree, the prototype wins.
 | SQL engine | `sql.js`. SQLite compiled to WebAssembly, running in the browser |
 | SQL dialect | SQLite. The interface says "SQLite SQL" and states that the concepts transfer |
 | SQL route | `/sql`, with the cheat sheet nested at `/sql/cheat-sheet` |
-| Deployment economy | One preview deployment near the end, one production release after approval |
+| Deployment economy | Codex performs one production deployment, after independent review. Claude never deploys |
+| Third track | Data cleaning, planned. Not built, and not in the navigation until its reference lesson exists |
 
 ### Ownership model (changed in draft 3)
 
@@ -225,9 +231,14 @@ Every colour is a token, declared in the bare `:root` for light and redefined in
 Nobody writes a hex outside `globals.css`. Retrofitting dark mode after fifty components exist
 is painful, which is why it is decided now.
 
-**5.10 The home page is a card grid, not a list.**
+**5.10 A lesson catalogue is a card grid, not a list.**
 One card per lesson, each with the name, one line on what it does, a progress bar, and how many
 exercises are done.
+
+**Amended in draft 8.** This rule described the home page, because at the time the home page was
+the only catalogue. The catalogues are now `/formulas` and `/sql`, one track each, and the rule
+follows them there. The home page is a track selector and carries no lesson cards at all. See
+section 7.
 
 ### Added in draft 5, for the SQL track
 
@@ -262,8 +273,12 @@ canonical query runs, returns rows, and rejects every query in `rejects`.
 
 ## 6. Lesson flow
 
-Four steps, shown as a rail beside the lesson. **Both tracks use the same four steps and the same
-rail.** What changes is the surface underneath them.
+Four steps, shown as a rail beside the lesson: **Understand, Build, Exercises, Done**. **Both
+tracks use the same four steps and the same rail.** What changes is the surface underneath them.
+
+The third step was called Practise until draft 8. It was renamed because the button that led to
+it said "Go to practise", which named a word the learner had not seen attached to anything, and
+because what the step actually shows is three numbered exercises.
 
 ### 6.1 Excel
 
@@ -274,7 +289,7 @@ Chip colours are consistent across the whole site so the learner builds a visual
 **Build.** The guided formula bar described in 5.2, against the lesson's sheet. One target,
 one correct result.
 
-**Practise.** Exactly three exercises, drawn from four types: multiple choice, fill the gaps,
+**Exercises.** Exactly three exercises, drawn from four types: multiple choice, fill the gaps,
 select a range on the grid, enter the complete formula.
 
 **Done.** Three takeaway bullets, progress, back to the list, redo the lesson.
@@ -294,7 +309,7 @@ WHERE which_rows_to_keep;
 editor, clause guidance underneath it, and the two buttons from 5.12. Run query shows the result.
 Check answer grades it.
 
-**Practise.** Exactly three exercises, always in this order and always this shape:
+**Exercises.** Exactly three exercises, always in this order and always this shape:
 
 1. Fill the missing pieces of a query
 2. Write a guided query
@@ -305,7 +320,7 @@ link to the next SQL lesson.
 
 ### 6.3 The SQL workspace
 
-SQL results are tables, so the Build and Practise steps get a wider two-column working surface
+SQL results are tables, so the Build and Exercises steps get a wider two-column working surface
 than Excel needs. Understand and Done stay single column and match the Excel track exactly.
 
 Desktop:
@@ -335,6 +350,30 @@ buttons, then results.
 anything that is SQL. Green stays rationed to the four roles in section 9. This is Formula School
 with a wider working area, not a coding platform with a different skin, and no part of it turns
 neon because it now contains an editor.
+
+### 6.4 Transition labels
+
+Agreed 9 September 2026. Every button that moves the learner between steps says where it goes.
+Both tracks use the same labels, with only the track name differing.
+
+| Where | Label |
+|---|---|
+| End of Understand | `Try it yourself` |
+| End of Build | `Continue to exercises` |
+| End of the three exercises | `Review lesson` |
+| Done, exercises outstanding | `Continue exercises` |
+| Done, all three complete | `Next Excel lesson` / `Next SQL lesson` |
+| Done, last lesson in the track | `Back to Excel lessons` / `Back to SQL lessons` |
+
+Two rules behind the table.
+
+**Never `Next exercise` when the next screen shows all three.** The exercises step renders the
+whole set at once, so a label promising one exercise describes something that does not happen.
+
+**The primary action on Done follows the state, not the position.** With exercises outstanding
+the useful thing is to go back and finish them, so `Continue exercises` is the primary button
+and moving to the next lesson is the quieter one. Once all three are done that order reverses.
+Nothing is gated either way: the next lesson is always reachable.
 
 ### Feedback progression
 
@@ -389,22 +428,56 @@ claim it.
 
 ## 7. Pages and navigation
 
+**One application, two areas.** Rewritten in draft 8. Formula School is a single app with one
+shared shell, not two apps and not a forked codebase. Inside it, Excel and SQL are separate
+areas that never mix. An Excel page shows Excel lessons, Excel progress and Excel language. A
+SQL page does the same for SQL. There is no combined catalogue anywhere in the product.
+
 **Launch navigation, in this order:**
 
 | Page | Route | What it is |
 |---|---|---|
-| Overview | `/` | Both tracks. Where you are up to, and the next thing to do |
-| Formulas | `/formulas` | The Excel card grid |
+| Overview | `/` | The track selector. One card per track, and nothing else |
+| Excel lessons | `/formulas` | The Excel card grid |
 | Excel lesson | `/formulas/[id]` | For example `/formulas/xlookup` |
-| Cheat sheet | `/cheat-sheet` | Every Excel signature, generated from lesson data |
-| SQL | `/sql` | The SQL card grid |
+| Excel cheat sheet | `/cheat-sheet` | Every Excel signature, generated from lesson data |
+| SQL lessons | `/sql` | The SQL card grid |
 | SQL lesson | `/sql/[id]` | For example `/sql/group-by` |
 | SQL cheat sheet | `/sql/cheat-sheet` | Every SQL clause, generated from lesson data |
 
-Excel routes do not move. Nothing already deployed or bookmarked breaks.
+Excel routes do not move. Nothing already deployed or bookmarked breaks, and no progress is
+migrated, because progress is keyed by lesson id and the ids did not change.
 
-The sidebar groups the two tracks under labels and shows a progress bar for each. The Overview
-speaks for both and does not favour one.
+**The learner-facing label is "Excel". The route stays `/formulas`.** Added in draft 8. The
+sidebar, the page heading and the breadcrumb all say Excel, because "Formulas" stopped naming
+anything useful once the product had two tracks. Renaming the route would break bookmarks and
+buy nothing, so the label and the path are allowed to disagree. This is the one place in the
+product where they do, and it is deliberate.
+
+**The Overview is a selector, not a catalogue.** Added in draft 8. It carries one card per
+track: the track name, a short line on what that track teaches, that track's progress in
+lessons and in exercises, and a Continue or Start action that can only lead into that track.
+It does not list lessons. Printing both catalogues underneath put twenty-six lessons from two
+different subjects on one scroll, and each catalogue already exists one route away.
+
+**Sidebar structure:**
+
+```
+Overview
+
+EXCEL          n / 18
+  Lessons
+  Cheat sheet
+
+SQL            n / 8
+  Lessons
+  Cheat sheet
+```
+
+Each track's progress sits inside that track's own group rather than in a shared block above
+the navigation, so an Excel count is never read as a site total. The two counts stay separate
+and are never added together. The mobile menu exposes every one of these destinations; it is
+the same list, not a reduced one.
 
 **The cheat sheets stay separate.** One page mixing Excel signatures with SQL clauses helps
 nobody, and both are generated from lesson data, so two pages is barely more work than one.
@@ -417,6 +490,13 @@ validator should reject that id rather than leave it as a trap.
 all: Practice, Mistakes, Your results, What's new, Contact. Four of six doors being empty makes
 a finished thing feel unfinished, however honest the copy is. They come back when they work.
 
+**Data cleaning is a planned third track and it is deliberately absent from the navigation.**
+Recorded 9 September 2026. It will teach the work of repairing a messy import rather than a
+fresh list of formulas, and it needs evaluator functions the site does not have yet. Until its
+reference lesson exists and passes the validator there is no Data Cleaning menu item, no route,
+no placeholder page, no empty state and no disabled entry. This is the rule above applied to a
+track rather than to a page, and the reason is the same one.
+
 Every page has a breadcrumb, an H1, and one line of description underneath. No exceptions.
 
 Bottom of the sidebar: the dark mode toggle, a note that progress is saved on this device, and the
@@ -426,10 +506,16 @@ optional Google save control. The copy explains that Google is only needed for c
 
 **Cloudflare Pages**, connected and deployed by Codex after review. Claude does not deploy.
 
-Every route is statically generated at build time; the ten lesson routes use
+Every route is statically generated at build time; the twenty-six lesson routes use
 `generateStaticParams` with `dynamicParams = false`. `npm run build` produces `out/`, which is the
-entire site. Cloudflare Pages settings: build command `npm run build`, output directory `out`, no
-environment variables, no functions.
+entire learning site. Cloudflare Pages settings: build command `npm run build`, output directory
+`out`, no environment variables.
+
+**Corrected in draft 8.** This paragraph used to say "no functions" and to count ten lesson
+routes. Both went stale. Draft 7 introduced Pages Functions under `/api/*` for Google identity
+and progress sync, as section 4 already records, and there are twenty-six lesson routes. The
+learning UI is still a pure static export and no Function ever executes learner SQL or a learner
+formula.
 
 Because the output is plain static files, the app can move to any host without a rewrite.
 

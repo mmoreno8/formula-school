@@ -1,7 +1,7 @@
 # Formula School
 
-Ten practical Excel formulas, taught through short interactive exercises.
-Think W3Schools for Excel. It is not a spreadsheet clone.
+Eighteen practical Excel formulas and eight SQL lessons, taught through short
+interactive exercises. Think W3Schools for Excel. It is not a spreadsheet clone.
 
 The product contract lives in [BRIEF.md](./BRIEF.md). If this README and the
 brief disagree, the brief wins.
@@ -65,7 +65,7 @@ sitting in the same slot.
 
 ## Deploying
 
-The app is a **pure static export**. `npm run build` writes a self-contained
+The learning UI is a **pure static export**. `npm run build` writes a self-contained
 `out/` directory and that is the entire site.
 
 **Cloudflare Pages settings**
@@ -78,11 +78,11 @@ The app is a **pure static export**. `npm run build` writes a self-contained
 | Environment variables | none |
 | Functions | none |
 
-There is deliberately no server-side anything: no API routes, no route
-handlers, no server actions, no middleware, no database, no runtime server
-dependencies. All ten lesson routes are generated at build time through
-`generateStaticParams` with `dynamicParams = false`. Keep it that way and the
-site will host anywhere.
+All twenty-six lesson routes are generated at build time through
+`generateStaticParams` with `dynamicParams = false`. Small Cloudflare Pages
+Functions under `/api/*` provide optional Google identity and progress sync;
+they never run learner formulas or SQL. The lessons remain local-first and work
+without an account.
 
 ---
 
@@ -90,7 +90,7 @@ site will host anywhere.
 
 ```
 app/                      routes: Overview, Formulas, lesson pages, Cheat sheet
-content/lessons/*.ts      the ten lessons, typed against lib/schema.ts
+content/lessons/*.ts      the eighteen Excel lessons, typed against lib/schema.ts
 lib/schema.ts             the contract every lesson is written against
 lib/evaluator/            tokenizer, parser and the Excel function table
 lib/formulaHint.ts        which argument the caret is inside

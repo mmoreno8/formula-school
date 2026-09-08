@@ -24,7 +24,7 @@ import { ChoiceTask } from "@/components/engine/exercises/ChoiceTask";
 import { GapsTask } from "@/components/engine/exercises/GapsTask";
 import { RangeTask } from "@/components/engine/exercises/RangeTask";
 
-const STEPS = ["Understand", "Build", "Practise", "Done"] as const;
+const STEPS = ["Understand", "Build", "Exercises", "Done"] as const;
 
 export function LessonView({ lesson }: { lesson: ExcelLesson }) {
   const [step, setStep] = useState(0);
@@ -161,7 +161,7 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
             </div>
             <div className="mt-5">
               <Button variant="primary" onClick={() => setStep(1)}>
-                Start building
+                Try it yourself
               </Button>
             </div>
           </section>
@@ -191,7 +191,7 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
             />
             <div className="mt-6 border-t border-line pt-4">
               <Button variant="primary" onClick={() => setStep(2)}>
-                Go to practise
+                Continue to exercises
               </Button>
             </div>
           </section>
@@ -202,7 +202,7 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
             {lesson.exercises.map(renderExercise)}
             <div>
               <Button variant="primary" onClick={() => setStep(3)}>
-                Finish lesson
+                Review lesson
               </Button>
             </div>
           </div>
@@ -249,33 +249,50 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
               </ul>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-2">
-              {next ? (
-                <Link href={`/formulas/${next.id}`}>
-                  <Button variant="primary" onClick={finish}>
-                    Next: {next.name}
-                  </Button>
-                </Link>
-              ) : (
-                <Link href="/formulas">
-                  <Button variant="primary" onClick={finish}>
-                    Back to all formulas
-                  </Button>
-                </Link>
-              )}
+            {/* The primary action follows the state of the lesson rather than
+                its position. With exercises outstanding the useful thing is to
+                go back and do them, so that is the primary and moving on is
+                the quieter option. */}
+            <div className="mt-7 flex flex-wrap items-center gap-2">
               {allDone ? (
-                <Button
-                  onClick={() => {
-                    finish();
-                    setStep(0);
-                  }}
-                >
-                  Mark as finished
-                </Button>
+                <>
+                  {next ? (
+                    <Link href={`/formulas/${next.id}`}>
+                      <Button variant="primary" onClick={finish}>
+                        Next Excel lesson
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/formulas">
+                      <Button variant="primary" onClick={finish}>
+                        Back to Excel lessons
+                      </Button>
+                    </Link>
+                  )}
+                  <Button
+                    onClick={() => {
+                      finish();
+                      setStep(0);
+                    }}
+                  >
+                    Mark as finished
+                  </Button>
+                </>
               ) : (
-                <Button onClick={() => setStep(2)}>
-                  Finish the exercises
-                </Button>
+                <>
+                  <Button variant="primary" onClick={() => setStep(2)}>
+                    Continue exercises
+                  </Button>
+                  {next ? (
+                    <Link href={`/formulas/${next.id}`}>
+                      <Button>Next Excel lesson</Button>
+                    </Link>
+                  ) : (
+                    <Link href="/formulas">
+                      <Button>Back to Excel lessons</Button>
+                    </Link>
+                  )}
+                </>
               )}
               <Button
                 variant="quiet"
@@ -287,6 +304,11 @@ export function LessonView({ lesson }: { lesson: ExcelLesson }) {
                 <IconRedo className="h-4 w-4" />
                 Redo this lesson
               </Button>
+              {next && (
+                <span className="ml-auto font-mono text-[13px] text-ink-3">
+                  {next.name}
+                </span>
+              )}
             </div>
           </section>
         )}

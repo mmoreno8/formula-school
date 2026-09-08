@@ -29,7 +29,7 @@ export default async function LessonPage({ params }: PageProps<"/formulas/[id]">
       <PageHeader
         crumbs={[
           { label: "Home", href: "/" },
-          { label: "Formulas", href: "/formulas" },
+          { label: "Excel", href: "/formulas" },
           { label: lesson.name },
         ]}
         title={lesson.name}

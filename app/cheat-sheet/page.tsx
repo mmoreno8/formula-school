@@ -5,18 +5,22 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { SignatureChips } from "@/components/engine/SignatureChips";
 
 export const metadata: Metadata = {
-  title: "Cheat sheet",
+  title: "Excel cheat sheet",
   description:
-    "Every formula in the course on one page, with what each argument is for.",
+    "Every Excel formula in the track on one page, with what each argument is for.",
 };
 
 export default function CheatSheetPage() {
   return (
     <>
       <PageHeader
-        crumbs={[{ label: "Home", href: "/" }, { label: "Cheat sheet" }]}
-        title="Cheat sheet"
-        description="Every formula on one page, with what each argument is actually for. Generated from the lessons, so it cannot drift out of date."
+        crumbs={[
+          { label: "Home", href: "/" },
+          { label: "Excel", href: "/formulas" },
+          { label: "Cheat sheet" },
+        ]}
+        title="Excel cheat sheet"
+        description="Every Excel formula on one page, with what each argument is actually for. Generated from the lessons, so it cannot drift out of date."
       />
 
       <div className="flex flex-col gap-3.5">

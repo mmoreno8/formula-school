@@ -20,7 +20,7 @@ import { TablesPanel } from "@/components/sql/TablesPanel";
 import { SqlWorkspace } from "@/components/sql/SqlWorkspace";
 import { SqlGapsTask } from "@/components/sql/SqlGapsTask";
 
-const STEPS = ["Understand", "Build", "Practise", "Done"] as const;
+const STEPS = ["Understand", "Build", "Exercises", "Done"] as const;
 
 const TINT: Record<Tint, string> = {
   lookup: "bg-lookup-bg text-lookup-fg",
@@ -35,7 +35,7 @@ const TINT: Record<Tint, string> = {
  * workspace underneath. BRIEF.md 6.2 and 6.3.
  *
  * Understand and Done are single column and match the Excel track exactly.
- * Build and Practise get the two-column surface, because results are tables.
+ * Build and Exercises get the two-column surface, because results are tables.
  */
 export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
   const [step, setStep] = useState(0);
@@ -175,7 +175,7 @@ export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
 
             <div className="mt-5">
               <Button variant="primary" onClick={() => setStep(1)}>
-                Start building
+                Try it yourself
               </Button>
             </div>
           </section>
@@ -208,7 +208,7 @@ export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
 
             <div className="mt-6 border-t border-line pt-4">
               <Button variant="primary" onClick={() => setStep(2)}>
-                Go to practise
+                Continue to exercises
               </Button>
             </div>
           </section>
@@ -219,7 +219,7 @@ export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
             {lesson.exercises.map(renderExercise)}
             <div>
               <Button variant="primary" onClick={() => setStep(3)}>
-                Finish lesson
+                Review lesson
               </Button>
             </div>
           </div>
@@ -272,31 +272,49 @@ export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
               </ul>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-2">
-              {next ? (
-                <Link href={`/sql/${next.id}`}>
-                  <Button variant="primary" onClick={finish}>
-                    Next: {next.name}
-                  </Button>
-                </Link>
-              ) : (
-                <Link href="/sql">
-                  <Button variant="primary" onClick={finish}>
-                    Back to all SQL lessons
-                  </Button>
-                </Link>
-              )}
+            {/* Same rule as the Excel track: with exercises outstanding the
+                useful thing is to go back and do them, so that is the primary
+                and moving on is the quieter option. */}
+            <div className="mt-7 flex flex-wrap items-center gap-2">
               {allDone ? (
-                <Button
-                  onClick={() => {
-                    finish();
-                    setStep(0);
-                  }}
-                >
-                  Mark as finished
-                </Button>
+                <>
+                  {next ? (
+                    <Link href={`/sql/${next.id}`}>
+                      <Button variant="primary" onClick={finish}>
+                        Next SQL lesson
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/sql">
+                      <Button variant="primary" onClick={finish}>
+                        Back to SQL lessons
+                      </Button>
+                    </Link>
+                  )}
+                  <Button
+                    onClick={() => {
+                      finish();
+                      setStep(0);
+                    }}
+                  >
+                    Mark as finished
+                  </Button>
+                </>
               ) : (
-                <Button onClick={() => setStep(2)}>Finish the exercises</Button>
+                <>
+                  <Button variant="primary" onClick={() => setStep(2)}>
+                    Continue exercises
+                  </Button>
+                  {next ? (
+                    <Link href={`/sql/${next.id}`}>
+                      <Button>Next SQL lesson</Button>
+                    </Link>
+                  ) : (
+                    <Link href="/sql">
+                      <Button>Back to SQL lessons</Button>
+                    </Link>
+                  )}
+                </>
               )}
               <Button
                 variant="quiet"
@@ -308,6 +326,11 @@ export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
                 <IconRedo className="h-4 w-4" />
                 Redo this lesson
               </Button>
+              {next && (
+                <span className="ml-auto font-mono text-[13px] text-ink-3">
+                  {next.name}
+                </span>
+              )}
             </div>
           </section>
         )}

@@ -11,8 +11,6 @@ import { IconCheck } from "@/components/ui/icons";
 interface Props {
   lesson: Lesson;
   progress: ProgressMap;
-  /** Shown on the combined overview, where both tracks appear together. */
-  showTrack?: boolean;
 }
 
 /**
@@ -20,9 +18,10 @@ interface Props {
  * the lesson is finished. No percentage, no accuracy, no score. BRIEF.md 6.
  *
  * Track-aware since draft 5: the href comes from the lesson's own track, so
- * one card serves both grids.
+ * one card serves both grids. It no longer carries a track badge: every grid
+ * holds one track only, so a badge could only ever repeat the page heading.
  */
-export function LessonCard({ lesson, progress, showTrack }: Props) {
+export function LessonCard({ lesson, progress }: Props) {
   const state = lessonProgress(progress, lesson.id);
   const total = lesson.exercises.length;
   const done = lesson.exercises.filter((e) => state.done.includes(e.id)).length;
@@ -43,11 +42,6 @@ export function LessonCard({ lesson, progress, showTrack }: Props) {
         <span className="font-mono text-[15px] font-medium tracking-tight">
           {lesson.name}
         </span>
-        {showTrack && (
-          <span className="rounded-md border border-line px-1.5 py-0.5 text-[10.5px] tracking-wide text-ink-3 uppercase">
-            {lesson.track === "sql" ? "SQL" : "Excel"}
-          </span>
-        )}
         {finished && <IconCheck className="ml-auto h-4 w-4 shrink-0 text-green" />}
       </div>
       <p className="text-[13.5px] leading-snug text-ink-3">{lesson.blurb}</p>

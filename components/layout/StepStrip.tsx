@@ -4,7 +4,7 @@
  * The lesson steps as one horizontal row, for focus mode.
  *
  * The rail carries this navigation normally. Hiding the rail without putting
- * the steps somewhere would leave a learner in Practise with no way back to
+ * the steps somewhere would leave a learner in Exercises with no way back to
  * Understand, so focus mode swaps the column for this strip rather than
  * dropping the navigation. CSS decides which one is showing; both are always
  * rendered, so nothing depends on JavaScript to stay reachable.
