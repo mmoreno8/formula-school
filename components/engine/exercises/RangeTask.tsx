@@ -138,6 +138,21 @@ export function RangeTask({ exercise, sheet, onSolved }: Props) {
             Show me the answer
           </Button>
         )}
+        {/* Resets this exercise and nothing else. Stored progress is left
+            alone, so having another go never costs you the exercises you have
+            already earned. Redo this lesson is the one that clears them. */}
+        {attempts.stage !== "idle" && (
+          <Button
+            onClick={() => {
+              setAnchor(null);
+              setSelection(null);
+              setNeedsTwo(false);
+              attempts.reset();
+            }}
+          >
+            Try again
+          </Button>
+        )}
       </div>
     </div>
   );

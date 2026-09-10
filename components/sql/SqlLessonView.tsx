@@ -39,6 +39,7 @@ const TINT: Record<Tint, string> = {
  */
 export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
   const [step, setStep] = useState(0);
+  const [confirmReset, setConfirmReset] = useState(false);
   const progress = useProgress();
   const state = lessonProgress(progress, lesson.id);
 
@@ -316,16 +317,33 @@ export function SqlLessonView({ lesson }: { lesson: SqlLesson }) {
                   )}
                 </>
               )}
-              <Button
-                variant="quiet"
-                onClick={() => {
-                  resetLesson(lesson.id);
-                  setStep(0);
-                }}
-              >
-                <IconRedo className="h-4 w-4" />
-                Redo this lesson
-              </Button>
+              {/* Two steps, because this deletes the Build step and every
+                  exercise already earned, and it used to do that on one click
+                  from a learner who only wanted another go at one of them.
+                  Try again inside an exercise is the non-destructive route. */}
+              {confirmReset ? (
+                <span className="flex flex-wrap items-center gap-2 text-[13.5px] text-ink-2">
+                  Clear the Build step and all {lesson.exercises.length}{" "}
+                  exercises?
+                  <Button
+                    onClick={() => {
+                      resetLesson(lesson.id);
+                      setConfirmReset(false);
+                      setStep(0);
+                    }}
+                  >
+                    Yes, clear it
+                  </Button>
+                  <Button variant="quiet" onClick={() => setConfirmReset(false)}>
+                    Keep my progress
+                  </Button>
+                </span>
+              ) : (
+                <Button variant="quiet" onClick={() => setConfirmReset(true)}>
+                  <IconRedo className="h-4 w-4" />
+                  Redo this lesson
+                </Button>
+              )}
               {next && (
                 <span className="ml-auto font-mono text-[13px] text-ink-3">
                   {next.name}

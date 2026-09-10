@@ -23,22 +23,33 @@ describe("the feedback ladder", () => {
     expect(s).toBe("revealed");
   });
 
-  it("keeps the answer shown once it has been shown", () => {
+  it("keeps the answer shown once a wrong answer follows the reveal", () => {
     expect(stageAfterWrong("revealed")).toBe("revealed");
-    expect(stageAfterCorrect("revealed")).toBe("revealed");
   });
 
-  it("reaches correct from anywhere except a reveal", () => {
-    expect(stageAfterCorrect("idle")).toBe("correct");
-    expect(stageAfterCorrect("hint")).toBe("correct");
-    expect(stageAfterCorrect("hint2")).toBe("correct");
+  it("reaches correct from anywhere at all", () => {
+    expect(stageAfterCorrect()).toBe("correct");
   });
 
   /**
-   * The regression. The SQL track leaves the editor live after a step is
-   * solved, so a learner can solve it, change the query to something wrong and
-   * check again. This transition used to return "correct" unchanged, which
-   * left the success banner up over a wrong result.
+   * The regression this file exists for, reported on the ROUND lesson.
+   *
+   * Revealing an answer used to pin the stage to "revealed" for good. The
+   * exercise types call onSolved only on "correct", so the exercise could
+   * never be earned, the lesson could never reach three of three, and the only
+   * way out was Redo this lesson, which deletes every exercise already earned.
+   */
+  it("lets an exercise be earned after its answer was revealed", () => {
+    const shown = stageAfterWrong(stageAfterWrong(stageAfterWrong("idle")));
+    expect(shown).toBe("revealed");
+    expect(stageAfterCorrect()).toBe("correct");
+  });
+
+  /**
+   * The SQL track leaves the editor live after a step is solved, so a learner
+   * can solve it, change the query to something wrong and check again. This
+   * transition used to return "correct" unchanged, which left the success
+   * banner up over a wrong result.
    */
   it("leaves the correct stage when a later answer is wrong", () => {
     expect(stageAfterWrong("correct")).toBe("hint");
@@ -47,12 +58,10 @@ describe("the feedback ladder", () => {
   it("does not skip to the reveal on that first wrong answer after solving", () => {
     // Solve, then get one wrong. That is one wrong answer, so it earns the
     // first hint rather than the answer.
-    const afterSolving = stageAfterCorrect("idle");
-    expect(stageAfterWrong(afterSolving)).toBe("hint");
+    expect(stageAfterWrong(stageAfterCorrect())).toBe("hint");
   });
 
   it("can be solved again after being got wrong", () => {
-    const s = stageAfterWrong(stageAfterCorrect("idle"));
-    expect(stageAfterCorrect(s)).toBe("correct");
+    expect(stageAfterCorrect()).toBe("correct");
   });
 });

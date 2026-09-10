@@ -5,17 +5,17 @@ testing and deployment). This file is the single source of truth. If something i
 it is not agreed. Anyone can propose a change, but change the file, do not change the code
 and hope.
 
-**Status: draft 8.** Manuel separated the two tracks into their own areas on 9 September 2026.
-Excel pages carry only Excel, SQL pages carry only SQL, and the homepage became a track selector
-instead of a combined catalogue. The lesson-transition labels were corrected in the same pass.
+**Status: draft 9.** Manuel hit a dead end on the ROUND lesson on 10 September 2026 and reported
+it. Revealing an answer made an exercise impossible to earn afterwards, which made the lesson
+impossible to finish, and the only way out deleted every exercise already earned. Draft 9 removes
+that rule, adds a per-exercise retry, and puts a confirmation in front of the destructive reset.
 
-**Deployment status.** These are different things and the brief has conflated them before. Draft 8
-is reviewed and released by Codex as one production deployment on 9 September 2026:
+**Deployment status.** These are different things and the brief has conflated them before:
 
 | | State |
 |---|---|
-| Repository | Draft 8 navigation separation and transition labels on `main` and `origin/main` |
-| Live in production | Draft 8, deployed by Codex after independent review on 9 September 2026 |
+| Repository | Draft 9 on `main` and `origin/main` |
+| Live in production | Draft 9, deployed by Codex after independent review on 10 September 2026 |
 
 Production deploys are `workflow_dispatch` only and build from `main` on the remote, so nothing
 reaches production until it is pushed and the workflow is run by hand. "Complete and green" is a
@@ -33,6 +33,8 @@ Draft 7 adds optional Google identity and cloud progress sync without introducin
 Draft 8 separates the two tracks into distinct areas, turns the homepage into a track selector,
 fixes the lesson-transition labels, and records Data Cleaning as a planned third track that is
 deliberately absent from the navigation.
+Draft 9 removes the rule that a revealed exercise can never be earned, because it made lessons
+unfinishable and its only escape was destructive.
 
 **Visual reference:** the clickable prototype is the design source of truth, not this document's
 descriptions. When they disagree, the prototype wins.
@@ -391,7 +393,23 @@ Two additions to that ladder:
   shows a syntax nudge and does not advance the counter. Burning a learner's hint on a typo
   teaches nothing.
 - **A "show me the answer" control is always available**, at every attempt. Nobody is held
-  hostage by the ladder. Using it marks the exercise as revealed rather than solved.
+  hostage by the ladder.
+- **Revealing an answer costs the learner nothing.** Changed in draft 9. Write the answer out
+  afterwards and the exercise counts, the same as if it had never been shown.
+- **Every exercise can be retried on its own.** Added in draft 9. "Try again" clears that one
+  exercise and leaves stored progress alone, so having another go never costs you the exercises
+  you have already earned.
+- **Redo this lesson asks first.** Added in draft 9. It deletes the Build step and all three
+  exercises, so it takes two clicks rather than one.
+
+**Why the reveal rule went, recorded so it does not come back.** Until draft 9, revealing pinned
+the exercise to "revealed" and a correct answer afterwards was silently ignored: the tick became
+unreachable, the lesson could never reach three of three, and the only route out was Redo this
+lesson, which cleared everything. The rule was defending the exercises-completed count, but that
+count is not a score. It claims no accuracy, no attempts and no quality, as this section has said
+since the first draft, so there was nothing to protect. The rule also never worked: the revealed
+state lived in component memory and was never stored, so it survived neither a refresh nor a step
+change, and punished only the learner who stayed on the page. Manuel hit exactly this on ROUND.
 
 ### Progress and what the numbers mean
 

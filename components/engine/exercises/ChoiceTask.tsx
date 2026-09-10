@@ -106,13 +106,27 @@ export function ChoiceTask({ exercise, sheet, gridCaption, onSolved }: Props) {
         )}
       </div>
 
-      {!done && attempts.stage !== "revealed" && (
-        <div className="mt-4">
+      <div className="mt-4 flex flex-wrap gap-2">
+        {!done && attempts.stage !== "revealed" && (
           <Button variant="quiet" onClick={attempts.revealNow}>
             Show me the answer
           </Button>
-        </div>
-      )}
+        )}
+        {/* Resets this exercise and nothing else. Stored progress is left
+            alone, so having another go never costs you the exercises you have
+            already earned. Redo this lesson is the one that clears them. */}
+        {attempts.stage !== "idle" && (
+          <Button
+            onClick={() => {
+              setPicked(null);
+              setWrongPicks([]);
+              attempts.reset();
+            }}
+          >
+            Try again
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

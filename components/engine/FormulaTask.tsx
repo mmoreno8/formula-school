@@ -143,7 +143,7 @@ export function FormulaTask({
             attempts.reset();
           }}
         >
-          Reset
+          Try again
         </Button>
         {!done && attempts.stage !== "revealed" && (
           <Button variant="quiet" onClick={attempts.revealNow}>

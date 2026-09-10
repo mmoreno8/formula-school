@@ -25,8 +25,9 @@ export type Stage = "idle" | "hint" | "hint2" | "revealed" | "correct";
  * wrong answer was still described as right. The SQL track keeps the editor
  * live after solving, which is exactly where that showed up.
  *
- * `revealed` stays sticky, because an answer that has been shown cannot be
- * un-shown, and re-laddering someone who has already seen it helps nobody.
+ * `revealed` stays sticky on this path, because an answer that has been shown
+ * cannot be un-shown, and re-laddering someone who has already seen it helps
+ * nobody. Note that this is the WRONG path only. See stageAfterCorrect.
  */
 export function stageAfterWrong(stage: Stage): Stage {
   if (stage === "revealed") return stage;
@@ -37,9 +38,30 @@ export function stageAfterWrong(stage: Stage): Stage {
   return "revealed";
 }
 
-/** Where a correct answer takes it. Revealing cannot be undone by solving. */
-export function stageAfterCorrect(stage: Stage): Stage {
-  return stage === "revealed" ? "revealed" : "correct";
+/**
+ * Where a correct answer takes it. Always `correct`, including after a reveal.
+ *
+ * This used to return `revealed` unchanged, so seeing the answer meant the
+ * exercise could never be earned again: the exercise types only call
+ * `onSolved` on `correct`, so the tick became unreachable, the lesson could
+ * never reach three of three, and the only way out was Redo this lesson, which
+ * deletes the whole lesson including the exercises already earned.
+ *
+ * The rule it was defending was that revealing should not earn the tick. But
+ * the tick counts exercises completed and nothing else. It is not a score, it
+ * claims no accuracy, so there was nothing to protect and a learner who read
+ * the answer, understood it and then wrote it out was being told no.
+ *
+ * It also never worked. `revealed` lives in component state and is never
+ * persisted, so it survived neither a refresh nor a step change. It punished
+ * only the learner who stayed on the page.
+ *
+ * It takes no argument on purpose: where the ladder had got to no longer
+ * changes where a correct answer lands. It still works as a setState updater,
+ * because a function of no arguments satisfies one that is handed a Stage.
+ */
+export function stageAfterCorrect(): Stage {
+  return "correct";
 }
 
 export interface Attempts {
