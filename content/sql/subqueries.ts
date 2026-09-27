@@ -38,7 +38,7 @@ export const subqueries: SqlLesson = {
   name: "Subqueries",
   blurb: "Let one query work out the number the other one needs",
   group: "filtering",
-  order: 8,
+  order: 9,
   db,
   shape:
     "SELECT which_columns_you_want\nFROM where_it_lives\nWHERE a_column > (SELECT one_value FROM where_it_lives);",

@@ -44,7 +44,7 @@ export const groupBy: SqlLesson = {
   name: "GROUP BY",
   blurb: "One row per region instead of one per order",
   group: "grouping",
-  order: 5,
+  order: 6,
   db,
   shape: "SELECT what_identifies_the_group, what_to_work_out\nFROM where_it_lives\nGROUP BY the_same_thing_again;",
   clauses: [

@@ -42,7 +42,7 @@ export const orderByLimit: SqlLesson = {
   name: "ORDER BY & LIMIT",
   blurb: "Put the rows in an order that means something, then take the top few",
   group: "reading",
-  order: 2,
+  order: 3,
   db,
   shape:
     "SELECT which_columns_you_want\nFROM where_it_lives\nORDER BY what_to_sort_by\nLIMIT how_many_rows;",

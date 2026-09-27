@@ -37,7 +37,7 @@ function stats(lessons: Lesson[], progress: ProgressMap) {
  * One card per track, and nothing else. BRIEF.md section 7.
  *
  * This page used to print both full lesson catalogues underneath these cards,
- * which put twenty-six lessons from two different subjects on one scroll. The
+ * which put twenty-seven lessons from two different subjects on one scroll. The
  * catalogues live at /formulas and /sql, one track each, and this page is the
  * door to them rather than a copy of them.
  */

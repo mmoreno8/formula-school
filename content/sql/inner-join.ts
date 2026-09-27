@@ -50,7 +50,7 @@ export const innerJoin: SqlLesson = {
   name: "INNER JOIN",
   blurb: "Two tables, one result, matched on the column they have in common",
   group: "joining",
-  order: 6,
+  order: 7,
   db,
   shape:
     "SELECT columns_from_either_table\nFROM the_first_table\nINNER JOIN the_second_table\nON what_makes_a_row_match;",

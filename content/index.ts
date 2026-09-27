@@ -27,6 +27,7 @@ import { textParts } from "./lessons/text-parts";
 import { trimLen } from "./lessons/trim-len";
 import { concat } from "./lessons/concat";
 import { indexMatch } from "./lessons/index-match";
+import { selectFrom } from "./sql/select-from";
 import { selectWhere } from "./sql/select-where";
 import { orderByLimit } from "./sql/order-by-limit";
 import { distinct } from "./sql/distinct";
@@ -61,16 +62,24 @@ export const EXCEL_LESSONS: ExcelLesson[] = [
 /**
  * The SQL track, in curriculum order. BRIEF.md section 3.2.
  *
- * GROUP BY was the reference implementation and stays at order 5, where the
- * other seven were built around it.
+ * GROUP BY was the reference implementation and was built at order 5, where
+ * the other seven were built around it. It sits at 6 since SELECT & FROM was
+ * added in front of the track; see the note below.
  *
- * The eight topics differ from the table in BRIEF.md 3.2, which paired SELECT
- * and WHERE as separate lessons and ended at HAVING and JOIN. Manuel revised
- * the set on 6 September 2026: SELECT and WHERE merged, HAVING deferred, and
- * CASE WHEN and subqueries promoted out of the deferred list. The count is
- * still eight and GROUP BY still sits fifth, so nothing else moved.
+ * Draft 6's eight topics differed from the original table in BRIEF.md 3.2,
+ * which paired SELECT and WHERE as separate lessons and ended at HAVING and
+ * JOIN. Manuel revised the set on 6 September 2026: SELECT and WHERE merged,
+ * HAVING was deferred, and CASE WHEN and subqueries moved forward. At that
+ * point the count remained eight and GROUP BY remained fifth.
+ *
+ * Manuel added SELECT & FROM at the front on 27 September 2026, after finding
+ * that the track opened on SELECT, FROM and WHERE at once when he wanted to
+ * write a SELECT a piece at a time. It is the only lesson before WHERE, so it
+ * had to go first, and the other eight each moved down one. Progress is keyed
+ * by lesson id, so nothing a learner had finished was affected.
  */
 export const SQL_LESSONS: SqlLesson[] = [
+  selectFrom,
   selectWhere,
   orderByLimit,
   distinct,
@@ -82,7 +91,7 @@ export const SQL_LESSONS: SqlLesson[] = [
 ].sort((a, b) => a.order - b.order);
 
 /** How many lessons each track will have when its MVP is complete. */
-export const TRACK_TARGET: Record<Track, number> = { excel: 18, sql: 8 };
+export const TRACK_TARGET: Record<Track, number> = { excel: 18, sql: 9 };
 
 export const TRACK_LABEL: Record<Track, string> = { excel: "Excel", sql: "SQL" };
 

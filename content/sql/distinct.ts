@@ -40,7 +40,7 @@ export const distinct: SqlLesson = {
   name: "DISTINCT",
   blurb: "Ask what values exist without being handed the same one ten times",
   group: "filtering",
-  order: 3,
+  order: 4,
   db,
   shape:
     "SELECT DISTINCT which_columns_you_want\nFROM where_it_lives\nWHERE which_rows_to_keep;",

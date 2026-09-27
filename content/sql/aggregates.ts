@@ -44,7 +44,7 @@ export const aggregates: SqlLesson = {
   name: "COUNT, SUM & AVG",
   blurb: "Turn a column of numbers into one number that answers the question",
   group: "grouping",
-  order: 4,
+  order: 5,
   db,
   shape:
     "SELECT COUNT(*), SUM(which_column), AVG(which_column)\nFROM where_it_lives\nWHERE which_rows_to_include;",

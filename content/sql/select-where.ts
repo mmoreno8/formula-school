@@ -37,7 +37,7 @@ export const selectWhere: SqlLesson = {
   name: "SELECT & WHERE",
   blurb: "Pick the columns you want and drop the rows you do not",
   group: "reading",
-  order: 1,
+  order: 2,
   db,
   shape:
     "SELECT which_columns_you_want\nFROM where_it_lives\nWHERE which_rows_to_keep;",

@@ -1,6 +1,6 @@
 # Formula School
 
-Eighteen practical Excel formulas and eight SQL lessons, taught through short
+Eighteen practical Excel formulas and nine SQL lessons, taught through short
 interactive exercises. Think W3Schools for Excel. It is not a spreadsheet clone.
 
 The product contract lives in [BRIEF.md](./BRIEF.md). If this README and the
@@ -75,10 +75,10 @@ The learning UI is a **pure static export**. `npm run build` writes a self-conta
 | Build command | `npm run build` |
 | Output directory | `out` |
 | Node version | 20 or newer |
-| Environment variables | none |
-| Functions | none |
+| Runtime variables | `GOOGLE_CLIENT_ID`, `SESSION_SECRET` for optional Google sync |
+| Functions | `functions/api/*` for identity and progress sync |
 
-All twenty-six lesson routes are generated at build time through
+All twenty-seven lesson routes are generated at build time through
 `generateStaticParams` with `dynamicParams = false`. Small Cloudflare Pages
 Functions under `/api/*` provide optional Google identity and progress sync;
 they never run learner formulas or SQL. The lessons remain local-first and work

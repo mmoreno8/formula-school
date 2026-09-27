@@ -5,17 +5,17 @@ testing and deployment). This file is the single source of truth. If something i
 it is not agreed. Anyone can propose a change, but change the file, do not change the code
 and hope.
 
-**Status: draft 9.** Manuel hit a dead end on the ROUND lesson on 10 September 2026 and reported
-it. Revealing an answer made an exercise impossible to earn afterwards, which made the lesson
-impossible to finish, and the only way out deleted every exercise already earned. Draft 9 removes
-that rule, adds a per-exercise retry, and puts a confirmation in front of the destructive reset.
+**Status: draft 10.** Manuel had been practising SQL in MySQL against his own `practice_shop`
+database and wanted the same practice on the site. The track opened on SELECT, FROM and WHERE in
+one lesson, which is a step ahead of where a beginner starts. Draft 10 adds SELECT & FROM as the
+new first lesson, built on his shop data, and the SQL track becomes nine lessons.
 
 **Deployment status.** These are different things and the brief has conflated them before:
 
 | | State |
 |---|---|
-| Repository | Draft 9 on `main` and `origin/main` |
-| Live in production | Draft 9, deployed by Codex after independent review on 10 September 2026 |
+| Repository | Draft 10 on `main` and `origin/main` |
+| Live in production | Draft 10, deployed by Codex after independent review on 27 September 2026 |
 
 Production deploys are `workflow_dispatch` only and build from `main` on the remote, so nothing
 reaches production until it is pushed and the workflow is run by hand. "Complete and green" is a
@@ -35,6 +35,8 @@ fixes the lesson-transition labels, and records Data Cleaning as a planned third
 deliberately absent from the navigation.
 Draft 9 removes the rule that a revealed exercise can never be earned, because it made lessons
 unfinishable and its only escape was destructive.
+Draft 10 adds SELECT & FROM to the front of the SQL track, taking it to nine lessons, and moves
+the other eight down one.
 
 **Visual reference:** the clickable prototype is the design source of truth, not this document's
 descriptions. When they disagree, the prototype wins.
@@ -54,7 +56,7 @@ descriptions. When they disagree, the prototype wins.
 | Unbuilt nav pages | Hidden until the features exist. See section 7 |
 | Hosting | Cloudflare Pages. Codex connects the GitHub repo after review |
 | Domain | Deferred. Not `jobtap.nz` |
-| Second track | SQL, approved 6 September 2026. Eight lessons for the MVP, all built |
+| Second track | SQL, approved 6 September 2026. Nine lessons since draft 10, all built |
 | SQL engine | `sql.js`. SQLite compiled to WebAssembly, running in the browser |
 | SQL dialect | SQLite. The interface says "SQLite SQL" and states that the concepts transfer |
 | SQL route | `/sql`, with the cheat sheet nested at `/sql/cheat-sheet` |
@@ -92,7 +94,7 @@ assumes an adult who is capable and slightly behind, not a beginner who needs ch
 
 ## 3. Curriculum
 
-Two tracks, both complete and validator green. Eighteen Excel lessons and eight SQL lessons.
+Two tracks, both complete and validator green. Eighteen Excel lessons and nine SQL lessons.
 
 ### 3.1 Excel track
 
@@ -130,30 +132,45 @@ through `signatures: Signature[]` rather than a single signature.
 
 ### 3.2 SQL track
 
-Eight lessons for the MVP, in this order:
+Nine lessons, in this order:
 
 | # | Lesson | Route | Teaches |
 |---|---|---|---|
-| 1 | SELECT & WHERE | `/sql/select-where` | `SELECT`, `FROM`, `WHERE`, `AND` |
-| 2 | ORDER BY & LIMIT | `/sql/order-by-limit` | `ORDER BY`, `DESC`, `LIMIT`, tiebreakers |
-| 3 | DISTINCT | `/sql/distinct` | `DISTINCT` |
-| 4 | COUNT, SUM & AVG | `/sql/aggregates` | `COUNT`, `SUM`, `AVG`, and what they do with `NULL` |
-| 5 | GROUP BY | `/sql/group-by` | `GROUP BY` |
-| 6 | INNER JOIN | `/sql/inner-join` | `INNER JOIN`, `ON` |
-| 7 | CASE WHEN | `/sql/case-when` | `CASE`, `WHEN`, `THEN`, `ELSE`, `END` |
-| 8 | Subqueries | `/sql/subqueries` | A `SELECT` inside `WHERE`, with `IN` |
+| 1 | SELECT & FROM | `/sql/select-from` | `SELECT`, `FROM`, `*`, naming columns |
+| 2 | SELECT & WHERE | `/sql/select-where` | `WHERE`, `AND` |
+| 3 | ORDER BY & LIMIT | `/sql/order-by-limit` | `ORDER BY`, `DESC`, `LIMIT`, tiebreakers |
+| 4 | DISTINCT | `/sql/distinct` | `DISTINCT` |
+| 5 | COUNT, SUM & AVG | `/sql/aggregates` | `COUNT`, `SUM`, `AVG`, and what they do with `NULL` |
+| 6 | GROUP BY | `/sql/group-by` | `GROUP BY` |
+| 7 | INNER JOIN | `/sql/inner-join` | `INNER JOIN`, `ON` |
+| 8 | CASE WHEN | `/sql/case-when` | `CASE`, `WHEN`, `THEN`, `ELSE`, `END` |
+| 9 | Subqueries | `/sql/subqueries` | A `SELECT` inside `WHERE`, with `IN` |
 
-Eight ends at subqueries because that is the first coherent stopping point. Stopping at grouping
+**Added in draft 10: SELECT & FROM.** The track used to open on SELECT, FROM and WHERE together.
+That is three ideas in the first lesson, and Manuel, who was learning SQL in MySQL at the time,
+wanted to write a SELECT a piece at a time first. The new lesson teaches two keywords and nothing
+else: which columns, and which table. WHERE now starts in lesson 2, where it is the only new idea
+rather than the third one.
+
+It runs on Manuel's own `practice_shop` database, the same customers and products tables he had
+been using in MySQL Workbench, so a query he writes on the site behaves the same way when he
+writes it there. That is not a coincidence worth relying on in general, but at this level the
+three dialects are identical, which 3.2 already notes. It carries two tables rather than one
+because with a single table FROM is a word you copy without reading.
+
+It ends at subqueries because that is the first coherent stopping point. Stopping at grouping
 would teach how to summarise and never join anything.
 
 **Changed in draft 6.** Draft 5 listed SELECT and WHERE as separate lessons, put HAVING sixth and
 ended at JOIN. The track was built with SELECT and WHERE merged into one lesson, HAVING held back,
-and CASE WHEN and subqueries brought forward from the deferred list. The count is still eight and
-GROUP BY still sits fifth, so nothing else in this document had to move.
+and CASE WHEN and subqueries brought forward from the deferred list. At that point the count
+remained eight and GROUP BY remained fifth. Draft 10 later added SELECT & FROM at the front and
+moved GROUP BY to sixth; existing lesson ids and progress keys did not change.
 
 **GROUP BY was built and tested first as the reference implementation**, the role XLOOKUP played
 for Excel. It exercises aggregation, the clause guidance line, and multi-row result comparison at
-once. The other seven were built to it, and it stays fifth so the course order does not move.
+once. The original other seven were built to it. It moved from fifth to sixth in draft 10 only
+because SELECT & FROM was inserted ahead of the existing curriculum.
 
 **Deferred to a later phase, not cut:** HAVING, LEFT JOIN and date handling. HAVING and LEFT JOIN
 are the two leading additions. LEFT JOIN answers what is missing, which is where interviews are
@@ -329,7 +346,7 @@ Desktop:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ SQL · WHERE                              Lesson 2 of 8  │
+│ SQL · WHERE                              Lesson 2 of 9  │
 ├──────────────────────┬──────────────────────────────────┤
 │ The problem          │ SQLite SQL                       │
 │                      │                                  │
@@ -475,7 +492,7 @@ product where they do, and it is deliberate.
 **The Overview is a selector, not a catalogue.** Added in draft 8. It carries one card per
 track: the track name, a short line on what that track teaches, that track's progress in
 lessons and in exercises, and a Continue or Start action that can only lead into that track.
-It does not list lessons. Printing both catalogues underneath put twenty-six lessons from two
+It does not list lessons. Printing both catalogues underneath put twenty-seven lessons from two
 different subjects on one scroll, and each catalogue already exists one route away.
 
 **Sidebar structure:**
@@ -487,7 +504,7 @@ EXCEL          n / 18
   Lessons
   Cheat sheet
 
-SQL            n / 8
+SQL            n / 9
   Lessons
   Cheat sheet
 ```
@@ -524,16 +541,17 @@ optional Google save control. The copy explains that Google is only needed for c
 
 **Cloudflare Pages**, connected and deployed by Codex after review. Claude does not deploy.
 
-Every route is statically generated at build time; the twenty-six lesson routes use
+Every route is statically generated at build time; the twenty-seven lesson routes use
 `generateStaticParams` with `dynamicParams = false`. `npm run build` produces `out/`, which is the
 entire learning site. Cloudflare Pages settings: build command `npm run build`, output directory
-`out`, no environment variables.
+`out`; `GOOGLE_CLIENT_ID` and `SESSION_SECRET` are runtime variables used only by the optional
+identity and progress-sync Functions.
 
 **Corrected in draft 8.** This paragraph used to say "no functions" and to count ten lesson
 routes. Both went stale. Draft 7 introduced Pages Functions under `/api/*` for Google identity
-and progress sync, as section 4 already records, and there are twenty-six lesson routes. The
-learning UI is still a pure static export and no Function ever executes learner SQL or a learner
-formula.
+and progress sync, as section 4 already records. Draft 10 brings the current total to twenty-seven
+lesson routes. The learning UI is still a pure static export and no Function ever executes learner
+SQL or a learner formula.
 
 Because the output is plain static files, the app can move to any host without a rewrite.
 
@@ -1036,7 +1054,7 @@ keyboard access.
 | Codex's isolated `sql.js` proof | Half a day. Gates everything after it |
 | Shared lesson-shell refactor and SQL workspace | **Two to three focused days** |
 | GROUP BY as the tested reference lesson | Half a day |
-| The other seven lessons | Several focused days |
+| The other eight lessons | Several focused days |
 | Content that is genuinely good | Longer, same honest answer as Excel |
 
 **Revised in review, and this is the second time this mistake has been caught.** The earlier
@@ -1065,10 +1083,10 @@ Claude does not report completion until all of these are true:
 - Keyboard alone can complete a lesson
 - The README explains setup, validation, testing and build
 
-**SQL track. Met as of the eight-lesson build, and reviewed.**
+**SQL track. Nine lessons. The original eight were reviewed; SELECT & FROM was added in draft 10.**
 
-- All eight lessons load, each with exactly three real exercises in the 5.13 order. No placeholders
-- All twenty-four exercises plus the eight Build targets pass the validator, including every `rejects` case
+- All nine lessons load, each with exactly three real exercises in the 5.13 order. No placeholders
+- All twenty-seven exercises plus the nine Build targets pass the validator, including every `rejects` case
 - The validator runs the real `sql.js` engine, not a stand-in
 - Run query and Check answer behave as 5.12 describes, and a syntax error never counts as an attempt
 - `orderMatters` is correct on every exercise, verified both ways: a reordered correct answer

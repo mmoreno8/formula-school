@@ -44,7 +44,7 @@ export const caseWhen: SqlLesson = {
   name: "CASE WHEN",
   blurb: "Turn a number into a word people can actually read",
   group: "reading",
-  order: 7,
+  order: 8,
   db,
   shape:
     "SELECT a_column,\n       CASE WHEN a_test THEN a_label\n            ELSE another_label\n       END AS what_to_call_it\nFROM where_it_lives;",
